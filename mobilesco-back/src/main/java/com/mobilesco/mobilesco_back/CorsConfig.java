@@ -15,7 +15,8 @@ public class CorsConfig {
       public void addCorsMappings(CorsRegistry registry) {
         // Permite acceso desde el frontend en localhost:4200
         registry.addMapping("/**")  // Aplica para todas las rutas
-          .allowedOrigins("http://localhost:5173") // URL de tu frontend
+          .allowedOrigins("http://76.13.30.221:8092",
+                          "http://localhost:5173") // URL de tu frontend
           .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
           .allowedHeaders("*")
           .allowCredentials(true);
