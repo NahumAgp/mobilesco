@@ -1,0 +1,98 @@
+package com.mobilesco.mobilesco_back.dto.proveedor;
+
+import java.time.LocalDate;
+
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Pattern;
+
+public class ProveedorUpdateDTO {
+    
+    @NotBlank(message = "La razón social es obligatoria")
+    private String razonSocial;
+
+    private String rfc;
+
+    @NotBlank(message = "El nombre del contacto es obligatorio")
+    private String nombre;
+
+    private String direccion;
+
+    @NotBlank(message = "El teléfono es obligatorio")
+    @Pattern(
+        regexp = "^[0-9]{10}$",
+        message = "El teléfono debe contener exactamente 10 dígitos numéricos"
+    )
+    private String telefono;
+
+    @Email(message = "El correo debe ser válido")
+    private String correo;
+    private LocalDate fechaUltimoContacto;
+    private Boolean activo;
+
+    // Getters y Setters
+    
+    public String getRazonSocial() {
+        return razonSocial;
+    }
+
+    public void setRazonSocial(String razonSocial) {
+        this.razonSocial = razonSocial;
+    }
+
+    public String getRfc() {
+        return rfc;
+    }
+
+    public void setRfc(String rfc) {
+        this.rfc = rfc;
+    }
+
+    public String getNombre() {
+        return nombre;
+    }
+
+    public void setNombre(String nombre) {
+        this.nombre = nombre;
+    }
+
+    public String getDireccion() {
+        return direccion;
+    }
+
+    public void setDireccion(String direccion) {
+        this.direccion = direccion;
+    }
+
+    public String getTelefono() {
+        return telefono;
+    }
+
+    public void setTelefono(String telefono) {
+        this.telefono = telefono;
+    }
+
+    public String getCorreo() {
+        return correo;
+    }
+
+    public void setCorreo(String correo) {
+        this.correo = correo;
+    }
+
+    public LocalDate getFechaUltimoContacto() {
+        return fechaUltimoContacto;
+    }
+
+    public void setFechaUltimoContacto(LocalDate fechaUltimoContacto) {
+        this.fechaUltimoContacto = fechaUltimoContacto;
+    }
+
+    public Boolean getActivo() {
+        return activo;
+    }
+
+    public void setActivo(Boolean activo) {
+        this.activo = activo;
+    }
+}
