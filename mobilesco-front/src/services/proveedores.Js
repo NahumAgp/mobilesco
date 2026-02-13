@@ -1,10 +1,8 @@
 // ========================================
-// URL BASE DEL BACKEND
+// URL BASE DEL BACKEND (dinámica por entorno)
 // ========================================
 
-// Aquí definimos la ruta base de tu API.
-// Cambia el puerto si tu backend usa otro.
-const API_URL = "http://localhost:8081/proveedor";
+const API_URL = `${import.meta.env.VITE_API_URL}/proveedor`;
 
 
 // ========================================
@@ -32,19 +30,15 @@ async function request(url, options = {}) {
   }
 
   if (!response.ok) {
-    throw data; // 🔥 Lanzamos el objeto REAL, no new Error()
+    throw data;
   }
 
   return data;
 }
 
 
-
-
-
-
 // ========================================
-// OBTENER TODOS LOS PROVEEDORES (GET)
+// OBTENER TODOS LOS PROVEEDORES
 // ========================================
 
 export function obtenerProveedores() {
@@ -52,9 +46,8 @@ export function obtenerProveedores() {
 }
 
 
-
 // ========================================
-// CREAR PROVEEDOR (POST)
+// CREAR PROVEEDOR
 // ========================================
 
 export function crearProveedor(data) {
@@ -65,12 +58,11 @@ export function crearProveedor(data) {
 }
 
 
-
 // ========================================
-// ACTUALIZAR PROVEEDOR (PUT)
+// ACTUALIZAR PROVEEDOR
 // ========================================
 
-export async function actualizarProveedor(data) {
+export function actualizarProveedor(data) {
   return request(`${API_URL}/${data.id}`, {
     method: "PUT",
     body: JSON.stringify(data)
@@ -78,16 +70,11 @@ export async function actualizarProveedor(data) {
 }
 
 
-
-
-
-
 // ========================================
-// ELIMINAR PROVEEDOR (DELETE)
+// ELIMINAR PROVEEDOR
 // ========================================
 
 export function eliminarProveedor(id) {
-  console.log("Enviando al backend:", id); 
   return request(`${API_URL}/${id}`, {
     method: "DELETE"
   });

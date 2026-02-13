@@ -1,0 +1,57 @@
+version: "3.9"
+
+services:
+
+  db:
+    image: mysql:8.0
+    environment:
+      MYSQL_ROOT_PASSWORD: root123
+      MYSQL_DATABASE: mobilesco
+      MYSQL_USER: mobilesco
+      MYSQL_PASSWORD: mobilesco123
+    volumes:
+      - mobilesco_db_data:/var/lib/mysql
+    networks:
+      - mobilesco_net
+    deploy:
+      replicas: 1
+      restart_policy:
+        condition: on-failure
+
+  backend:
+    image: mobilesco-back:latest
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://db:3306/mobilesco?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
+      SPRING_DATASOURCE_USERNAME: mobilesco
+      SPRING_DATASOURCE_PASSWORD: mobilesco123
+      SPRING_JPA_HIBERNATE_DDL_AUTO: update
+    depends_on:
+      - db
+    ports:
+      - "8091:8081"
+    networks:
+      - mobilesco_net
+    deploy:
+      replicas: 1
+      restart_policy:
+        condition: on-failure
+
+  frontend:
+    image: mobilesco-front:latest
+    ports:
+      - "8092:80"
+    depends_on:
+      - backend
+    networks:
+      - mobilesco_net
+    deploy:
+      replicas: 1
+      restart_policy:
+        condition: on-failure
+
+networks:
+  mobilesco_net:
+    driver: overlay
+
+volumes:
+  mobilesco_db_data:

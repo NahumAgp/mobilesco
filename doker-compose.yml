@@ -8,7 +8,7 @@ services:
     restart: always
     environment:
       MYSQL_ROOT_PASSWORD: root
-      MYSQL_DATABASE: mobilesco
+      MYSQL_DATABASE: erp_mobilesco
       MYSQL_USER: mobilesco
       MYSQL_PASSWORD: mobilesco123
     ports:
@@ -17,17 +17,18 @@ services:
       - db_data:/var/lib/mysql
 
   backend:
-    build: ./mobilesco-back
-    container_name: mobilesco_backend
-    restart: always
-    ports:
-      - "8080:8080"
-    depends_on:
-      - db
-    environment:
-      SPRING_DATASOURCE_URL: jdbc:mysql://db:3306/mobilesco
-      SPRING_DATASOURCE_USERNAME: mobilesco
-      SPRING_DATASOURCE_PASSWORD: mobilesco123
+  build: ./mobilesco-back
+  container_name: mobilesco_backend
+  restart: always
+  ports:
+    - "8081:8081"
+  depends_on:
+    - db
+  environment:
+    SPRING_DATASOURCE_URL: jdbc:mysql://db:3306/erp_mobilesco?useSSL=false&allowPublicKeyRetrieval=true
+    SPRING_DATASOURCE_USERNAME: root
+    SPRING_DATASOURCE_PASSWORD: root
+
 
   frontend:
     build: ./mobilesco-front
