@@ -2,7 +2,7 @@
 // URL BASE DEL BACKEND (dinámica por entorno)
 // ========================================
 
-const API_URL = `${import.meta.env.VITE_API_URL}/proveedor`;
+const API_URL = `http://localhost:8081/proveedor`;
 
 
 // ========================================
