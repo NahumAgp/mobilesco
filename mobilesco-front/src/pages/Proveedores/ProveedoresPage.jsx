@@ -5,11 +5,11 @@ import { useState } from "react";
 import { useProveedores } from "./useProveedores";
 
 // Componentes visuales
-import ProveedoresTable from "../../components/ProveedoresTable.jsx";
+import ProveedoresTable from "../../components/Proveedores/ProveedoresTable.jsx";
 import ProveedorModal from "./ProveedorModal";
 
 // Componente común
-import PageHeader from "../../components/PageHeader.jsx";
+import PageHeader from "../../components/Sistema/PageHeader.jsx";
 
 // Esta es la función principal del componente.
 // En React, un componente es simplemente una función que retorna JSX.

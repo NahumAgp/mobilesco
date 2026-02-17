@@ -1,4 +1,4 @@
-import ProveedorForm from "../../components/ProveedorForm";
+import ProveedorForm from "../../components/Proveedores/ProveedorForm.jsx";
 
 // Recibimos props desde la página
 export default function ProveedorModal({

@@ -1,0 +1,14 @@
+{
+    "configurations": [
+        {
+            "type": "java",
+            "name": "Spring Boot-MobilescoBackApplication<mobilesco-back>",
+            "request": "launch",
+            "cwd": "${workspaceFolder}",
+            "mainClass": "com.mobilesco.mobilesco_back.MobilescoBackApplication",
+            "projectName": "mobilesco-back",
+            "args": "",
+            "envFile": "${workspaceFolder}/.env"
+        }
+    ]
+}
