@@ -49,7 +49,7 @@ export default function ProveedoresPage() {
   };
 
   const proveedoresFiltrados = proveedores.filter((p) => {
-
+    // console.log(proveedores) 
     const coincideBusqueda =
       p.razonSocial.toLowerCase().includes(busqueda.toLowerCase()) ||
       p.nombre?.toLowerCase().includes(busqueda.toLowerCase()) ||

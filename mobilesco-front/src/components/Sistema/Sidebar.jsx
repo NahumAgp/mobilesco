@@ -92,7 +92,7 @@ export default function Sidebar() {
       to="/proveedores/nuevo"
       className="sidebar-link"
     >
-      <i className="bi-plus-circle"> </i>
+      <i className="bi-plus-circle me-2"> </i>
       Nuevo Proveedor
     </NavLink>
 

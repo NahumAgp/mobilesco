@@ -43,6 +43,12 @@ public class ProveedorService {
 
     // --------- CREATE ---------
     public ProveedorResponseDTO crear( ProveedorCreateDTO dto) {
+        proveedorRepository
+        .findByRazonSocialIgnoreCase(dto.getRazonSocial())
+        .ifPresent(p -> {
+            throw new RuntimeException("Ya existe un proveedor con esa razón social");
+        });
+
         ProveedorModel proveedor = new ProveedorModel();
         proveedor.setRazonSocial(dto.getRazonSocial());
         proveedor.setRfc(dto.getRfc());
@@ -79,6 +85,7 @@ public class ProveedorService {
 
     // --------- UPDATE ---------
     public Optional<ProveedorResponseDTO> actualizar(Long id, ProveedorUpdateDTO dto) {
+        
         return proveedorRepository.findById(id).map(existente -> {
             existente.setRazonSocial(dto.getRazonSocial());
             existente.setRfc(dto.getRfc());
