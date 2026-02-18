@@ -2,8 +2,6 @@
 // URL BASE DEL BACKEND
 // ========================================
 
-// Aquí definimos la ruta base de tu API.
-// Cambia el puerto si tu backend usa otro.
 const API_URL = "http://localhost:8081/proveedor";
 
 
@@ -21,24 +19,30 @@ async function request(url, options = {}) {
     ...options
   });
 
+  // 🔥 Si es 204 No Content, fue exitoso
+  if (response.status === 204) {
+    return null;
+  }
+
+  // 🔥 Si no hay contenido, no intentes parsear
   const text = await response.text();
 
   let data = null;
 
-  try {
-    data = text ? JSON.parse(text) : null;
-  } catch {
-    data = text;
+  if (text) {
+    try {
+      data = JSON.parse(text);
+    } catch {
+      data = text;
+    }
   }
 
   if (!response.ok) {
-    throw data; // 🔥 Lanzamos el objeto REAL, no new Error()
+    throw data || { message: "Error en la petición" };
   }
 
   return data;
 }
-
-
 
 
 
@@ -49,6 +53,16 @@ async function request(url, options = {}) {
 
 export function obtenerProveedores() {
   return request(API_URL);
+}
+
+
+
+// ========================================
+// OBTENER PROVEEDOR POR ID (GET)
+// ========================================
+
+export function obtenerProveedorPorId(id) {
+  return request(`${API_URL}/${id}`);
 }
 
 
@@ -69,16 +83,15 @@ export function crearProveedor(data) {
 // ========================================
 // ACTUALIZAR PROVEEDOR (PUT)
 // ========================================
+// 🔥 IMPORTANTE: ahora recibe (id, data)
+// para que funcione con el nuevo formulario
 
-export async function actualizarProveedor(data) {
-  return request(`${API_URL}/${data.id}`, {
+export function actualizarProveedor(id, data) {
+  return request(`${API_URL}/${id}`, {
     method: "PUT",
     body: JSON.stringify(data)
   });
 }
-
-
-
 
 
 
@@ -87,7 +100,6 @@ export async function actualizarProveedor(data) {
 // ========================================
 
 export function eliminarProveedor(id) {
-  console.log("Enviando al backend:", id); 
   return request(`${API_URL}/${id}`, {
     method: "DELETE"
   });

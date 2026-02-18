@@ -34,7 +34,7 @@ export default function ProveedoresTable({ data, onEditar, onEliminar }) {
             {data && data.length > 0 ? (
 
               data.map((proveedor) => (
-                <tr key={proveedor.id}>
+               <tr key={proveedor.id} style={{ cursor: "pointer" }} onClick={() => onEditar(proveedor)}>
 
                   {/* Mostramos cada campo */}
                   <td>{proveedor.id}</td>
@@ -60,17 +60,18 @@ export default function ProveedoresTable({ data, onEditar, onEliminar }) {
                   <td>
                     <button
                       className="btn btn-sm btn-outline-primary me-1"
-                      onClick={() => onEditar(proveedor)}
+                      onClick={(e) => { e.stopPropagation(); onEditar(proveedor); }}
                     >
                       Editar
                     </button>
 
                     <button
                       className="btn btn-sm btn-outline-danger"
-                      onClick={() => onEliminar(proveedor.id)}
+                      onClick={(e) => { e.stopPropagation(); onEliminar(proveedor.id); }}
                     >
                       Eliminar
                     </button>
+
                   </td>
 
                 </tr>

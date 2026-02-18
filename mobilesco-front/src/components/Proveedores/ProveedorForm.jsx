@@ -1,17 +1,24 @@
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import {
+  obtenerProveedorPorId,
+  crearProveedor,
+  actualizarProveedor
+} from "../../services/proveedores.js";
+import Toast from "../ui/Toast.jsx";
 
-// Recibe props:
-// proveedor → si estamos editando, viene con datos
-// onSave → función que viene del hook
-// onCancel → función para cerrar modal
-export default function ProveedorForm({ proveedor, onSave, onCancel }) {
+export default function ProveedorForm({ proveedorId }) {
 
-  // ============================
-  // ESTADO LOCAL DEL FORMULARIO
-  // ============================
-const [erroresBackend, setErroresBackend] = useState({});
+  const [toastMessage, setToastMessage] = useState("");
+  const [toastType, setToastType] = useState("success");
 
-  
+  const navigate = useNavigate();
+  const esEdicion = Boolean(proveedorId);
+
+  // =========================
+  // ESTADO DEL FORMULARIO
+  // =========================
+  const [erroresBackend, setErroresBackend] = useState({});
 
   const [formData, setFormData] = useState({
     razonSocial: "",
@@ -23,31 +30,37 @@ const [erroresBackend, setErroresBackend] = useState({});
     activo: true
   });
 
-  // ======================================
-  // SI ESTAMOS EDITANDO, CARGAMOS LOS DATOS
-  // ======================================
-
+  // =========================
+  // CARGAR PROVEEDOR SI ES EDICIÓN
+  // =========================
   useEffect(() => {
-    if (proveedor) {
-      setFormData({
-        razonSocial: proveedor.razonSocial || "",
-        rfc: proveedor.rfc || "",
-        nombre: proveedor.nombre || "",
-        direccion: proveedor.direccion || "",
-        correo: proveedor.correo || "",
-        telefono: proveedor.telefono || "",
-        activo: proveedor.activo ?? true
-      });
-    }
-  }, [proveedor]);
-  // Este efecto se ejecuta cuando cambia proveedor
+    const cargar = async () => {
+      if (!proveedorId) return;
 
+      try {
+        const data = await obtenerProveedorPorId(proveedorId);
 
+        setFormData({
+          razonSocial: data.razonSocial ?? "",
+          rfc: data.rfc ?? "",
+          nombre: data.nombre ?? "",
+          direccion: data.direccion ?? "",
+          correo: data.correo ?? "",
+          telefono: data.telefono ?? "",
+          activo: data.activo ?? true,
+        });
 
-  // ============================
-  // MANEJAR CAMBIOS EN INPUTS
-  // ============================
+      } catch (e) {
+        console.error("Error cargando proveedor:", e);
+      }
+    };
 
+    cargar();
+  }, [proveedorId]);
+
+  // =========================
+  // MANEJAR CAMBIOS
+  // =========================
   function handleChange(e) {
     const { name, value, type, checked } = e.target;
 
@@ -57,180 +70,198 @@ const [erroresBackend, setErroresBackend] = useState({});
     });
   }
 
-
-
-  // ============================
-  // ENVIAR FORMULARIO
-  // ============================
-
+  // =========================
+  // GUARDAR
+  // =========================
   async function handleSubmit(e) {
-  e.preventDefault();
+    e.preventDefault();
 
-  try {
-    await onSave(formData);
-    setErroresBackend([]); // limpia si todo sale bien
-  } catch (e) {
+    try {
+      setErroresBackend({});
 
-  if (e?.errors) {
+      if (esEdicion) {
+        await actualizarProveedor(proveedorId, formData);
+        setToastType("success");
+        setToastMessage("Proveedor actualizado correctamente");
+      } else {
+        await crearProveedor(formData);
+        setToastType("success");
+        setToastMessage("Proveedor creado correctamente");
+      }
 
-    const erroresPorCampo = {};
+      // Espera 1 segundo antes de redirigir
+      setTimeout(() => {
+        navigate("/proveedores");
+}, 1000);
 
-    e.errors.forEach((msg) => {
-      const m = msg.toLowerCase();
 
-      if (m.includes("teléfono") || m.includes("telefono"))
-        erroresPorCampo.telefono = msg;
+    } catch (e) {
+      setToastType("danger");
+      setToastMessage("Ocurrió un error al guardar");
 
-      if (m.includes("nombre del contacto"))
-        erroresPorCampo.nombre = msg;
+      if (e?.errors) {
+        const erroresPorCampo = {};
 
-      if (m.includes("correo"))
-        erroresPorCampo.correo = msg;
+        e.errors.forEach((msg) => {
+          const m = msg.toLowerCase();
 
-      if (m.includes("razón social"))
-        erroresPorCampo.razonSocial = msg;
-    });
+          if (m.includes("teléfono") || m.includes("telefono"))
+            erroresPorCampo.telefono = msg;
 
-    setErroresBackend(erroresPorCampo);
+          if (m.includes("correo"))
+            erroresPorCampo.correo = msg;
 
+          if (m.includes("razón social"))
+            erroresPorCampo.razonSocial = msg;
+
+          if (m.includes("nombre"))
+            erroresPorCampo.nombre = msg;
+
+          if (m.includes("rfc"))
+            erroresPorCampo.rfc = msg;
+        });
+
+        setErroresBackend(erroresPorCampo);
+      }
+
+      console.error(e);
+    }
   }
-}
 
-}
-
-
-
-
+  // =========================
+  // RENDER
+  // =========================
   return (
-    <form onSubmit={handleSubmit} noValidate>
+    <>
+      <Toast
+        message={toastMessage}
+        type={toastType}
+        onClose={() => setToastMessage("")}
+      />
 
-      {/* ================== RAZÓN SOCIAL ================== */}
-      <div className="mb-3">
-        <label className="form-label">Razón Social</label>
-          <input
-            type="text"
-            name="razonSocial"
-            className={`form-control ${erroresBackend.razonSocial ? "is-invalid" : ""}`}
-            value={formData.razonSocial}
-            onChange={handleChange}
-          />
+        <form onSubmit={handleSubmit} noValidate>
 
-          <div className="invalid-feedback">
-            {erroresBackend.razonSocial}
+          {/* RAZÓN SOCIAL */}
+          <div className="mb-3">
+            <label className="form-label">Razón Social</label>
+            <input
+              type="text"
+              name="razonSocial"
+              className={`form-control ${erroresBackend.razonSocial ? "is-invalid" : ""}`}
+              value={formData.razonSocial}
+              onChange={handleChange}
+            />
+            <div className="invalid-feedback">
+              {erroresBackend.razonSocial}
+            </div>
           </div>
-      </div>
 
-
-      {/* ================== RFC ================== */}
-      <div className="mb-3">
-        <label className="form-label">RFC</label>
-         <input
-          type="text"
-          name="rfc"
-          className={`form-control ${erroresBackend.rfc ? "is-invalid" : ""}`}
-          value={formData.rfc}
-          onChange={handleChange}
-        />
-          <div className="invalid-feedback">
-            {erroresBackend.rfc}
+          {/* RFC */}
+          <div className="mb-3">
+            <label className="form-label">RFC</label>
+            <input
+              type="text"
+              name="rfc"
+              className={`form-control ${erroresBackend.rfc ? "is-invalid" : ""}`}
+              value={formData.rfc}
+              onChange={handleChange}
+            />
+            <div className="invalid-feedback">
+              {erroresBackend.rfc}
+            </div>
           </div>
-      </div>
 
-
-       {/* ================== NOMBRE ================== */}
-      <div className="mb-3">
-        <label className="form-label">Nombre</label>
-        <input
-          type="text"
-          name="nombre"
-          className={`form-control ${erroresBackend.nombre ? "is-invalid" : ""}`}
-          value={formData.nombre}
-          onChange={handleChange}
-        />
-          <div className="invalid-feedback">
-            {erroresBackend.nombre}
+          {/* NOMBRE */}
+          <div className="mb-3">
+            <label className="form-label">Nombre</label>
+            <input
+              type="text"
+              name="nombre"
+              className={`form-control ${erroresBackend.nombre ? "is-invalid" : ""}`}
+              value={formData.nombre}
+              onChange={handleChange}
+            />
+            <div className="invalid-feedback">
+              {erroresBackend.nombre}
+            </div>
           </div>
-      </div>
 
-      {/* ================== DIRECCIÓN ================== */}
-      <div className="mb-3">
-        <label className="form-label">Dirección</label>
-        <input
-          type="text"
-          name="direccion"
-          className={`form-control ${erroresBackend.direccion ? "is-invalid" : ""}`}
-          value={formData.direccion}
-          onChange={handleChange}
-        />
-          <div className="invalid-feedback">
-            {erroresBackend.direccion}
+          {/* DIRECCIÓN */}
+          <div className="mb-3">
+            <label className="form-label">Dirección</label>
+            <input
+              type="text"
+              name="direccion"
+              className="form-control"
+              value={formData.direccion}
+              onChange={handleChange}
+            />
           </div>
-      </div>
 
-      {/* ================== CORREO ================== */}
-      <div className="mb-3">
-        <label className="form-label">Correo</label>
-        <input
-          type="text"
-          name="correo"
-          className={`form-control ${erroresBackend.correo ? "is-invalid" : ""}`}
-          value={formData.correo}
-          onChange={handleChange}
-        />
-          <div className="invalid-feedback">
-            {erroresBackend.correo}
+          {/* CORREO */}
+          <div className="mb-3">
+            <label className="form-label">Correo</label>
+            <input
+              type="email"
+              name="correo"
+              className={`form-control ${erroresBackend.correo ? "is-invalid" : ""}`}
+              value={formData.correo}
+              onChange={handleChange}
+            />
+            <div className="invalid-feedback">
+              {erroresBackend.correo}
+            </div>
           </div>
-      </div>
 
-      {/* ================== TELÉFONO ================== */}
-      <div className="mb-3">
-        <label className="form-label">Teléfono</label>
-       <input
-          type="text"
-          name="telefono"
-          className={`form-control ${erroresBackend.telefono ? "is-invalid" : ""}`}
-          value={formData.telefono}
-          onChange={handleChange}
-        />
-          <div className="invalid-feedback">
-            {erroresBackend.telefono}
+          {/* TELÉFONO */}
+          <div className="mb-3">
+            <label className="form-label">Teléfono</label>
+            <input
+              type="text"
+              name="telefono"
+              className={`form-control ${erroresBackend.telefono ? "is-invalid" : ""}`}
+              value={formData.telefono}
+              onChange={handleChange}
+            />
+            <div className="invalid-feedback">
+              {erroresBackend.telefono}
+            </div>
           </div>
-      </div>
 
-      {/* ================== ACTIVO ================== */}
-      <div className="form-check mb-3">
-        <input
-          type="checkbox"
-          className="form-check-input"
-          name="activo"
-          checked={formData.activo}
-          onChange={handleChange}
-        />
-        <label className="form-check-label">
-          Activo
-        </label>
-      </div>
+          {/* ACTIVO */}
+          <div className="form-check mb-4">
+            <input
+              type="checkbox"
+              className="form-check-input"
+              name="activo"
+              checked={formData.activo}
+              onChange={handleChange}
+            />
+            <label className="form-check-label">
+              Activo
+            </label>
+          </div>
 
-      {/* ================== BOTONES ================== */}
-      <div className="d-flex justify-content-end gap-2">
+          {/* BOTONES */}
+          <div className="d-flex justify-content-end gap-2">
+            <button
+              type="button"
+              className="btn btn-secondary"
+              onClick={() => navigate("/proveedores")}
+            >
+              Cancelar
+            </button>
 
-        <button
-          type="button"
-          className="btn btn-secondary"
-          onClick={onCancel}
-        >
-          Cancelar
-        </button>
+            <button
+              type="submit"
+              className="btn btn-primary"
+            >
+              Guardar
+            </button>
+          </div>
 
-        <button
-          type="submit"
-          className="btn btn-primary"
-        >
-          Guardar
-        </button>
+        </form>
+    </>
 
-      </div>
-
-    </form>
   );
 }

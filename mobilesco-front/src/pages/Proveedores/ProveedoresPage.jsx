@@ -1,147 +1,152 @@
-import React from "react";
-import { useState } from "react";
+import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
 
-// Importamos el hook personalizado donde vive toda la lógica
 import { useProveedores } from "./useProveedores";
 
-// Componentes visuales
 import ProveedoresTable from "../../components/Proveedores/ProveedoresTable.jsx";
-import ProveedorModal from "./ProveedorModal";
-
-// Componente común
 import PageHeader from "../../components/Sistema/PageHeader.jsx";
+import Toast from "../../components/ui/Toast.jsx";
 
-// Esta es la función principal del componente.
-// En React, un componente es simplemente una función que retorna JSX.
 export default function ProveedoresPage() {
 
-  // Aquí estamos usando nuestro hook personalizado.
-  // Este hook nos devuelve estados y funciones.
+  const navigate = useNavigate();
+
+  const [toastMessage, setToastMessage] = useState("");
+  const [toastType, setToastType] = useState("success");
+
   const {
-    proveedores,          // Lista de proveedores
+    proveedores,
     loadingLista,
-    loadingGuardado,
-    error,                // Mensaje de error si algo falla
-    erroresForm,        // Errores específicos del formulario
-    mostrarForm,          // Booleano para mostrar el modal
-    proveedorEditando,    // Proveedor seleccionado para editar
-    abrirNuevo,           // Función para abrir modal en modo "nuevo"
-    abrirEditar,          // Función para abrir modal en modo "editar"
-    cerrarForm,           // Función para cerrar el modal
-    guardarProveedor,     // Función para guardar (crear o actualizar)
-    eliminarProveedor     // Función para eliminar proveedor
+    error,
+    eliminarProveedor
   } = useProveedores();
+
   const [busqueda, setBusqueda] = useState("");
   const [filtroEstatus, setFiltroEstatus] = useState("TODOS");
   const [soloActivos, setSoloActivos] = useState(false);
+
+  const abrirEditar = (proveedor) => {
+    navigate(`/proveedores/${proveedor.id}`);
+  };
+
+  const manejarEliminar = async (id) => {
+
+    const confirmacion = window.confirm("¿Seguro que deseas eliminar este proveedor?");
+    if (!confirmacion) return;
+
+    try {
+
+      await eliminarProveedor(id);
+
+      setToastType("success");
+      setToastMessage("Proveedor eliminado correctamente");
+
+    } catch (e) {
+
+      setToastType("danger");
+      setToastMessage("Error al eliminar proveedor");
+    }
+  };
+
   const proveedoresFiltrados = proveedores.filter((p) => {
 
-  const coincideBusqueda =
-    p.razonSocial.toLowerCase().includes(busqueda.toLowerCase()) ||
-    p.nombre?.toLowerCase().includes(busqueda.toLowerCase()) ||
-    p.correo?.toLowerCase().includes(busqueda.toLowerCase());
+    const coincideBusqueda =
+      p.razonSocial.toLowerCase().includes(busqueda.toLowerCase()) ||
+      p.nombre?.toLowerCase().includes(busqueda.toLowerCase()) ||
+      p.correo?.toLowerCase().includes(busqueda.toLowerCase());
 
-  const coincideEstatus =
-    filtroEstatus === "TODOS" ||
-    (filtroEstatus === "ACTIVO" && p.activo) ||
-    (filtroEstatus === "INACTIVO" && !p.activo);
+    const coincideEstatus =
+      filtroEstatus === "TODOS" ||
+      (filtroEstatus === "ACTIVO" && p.activo) ||
+      (filtroEstatus === "INACTIVO" && !p.activo);
 
-  const coincideSoloActivos =
-    !soloActivos || p.activo;
+    const coincideSoloActivos =
+      !soloActivos || p.activo;
 
-  return coincideBusqueda && coincideEstatus && coincideSoloActivos;
-});
+    return coincideBusqueda && coincideEstatus && coincideSoloActivos;
+  });
 
-
-  // Lo que retornamos aquí es lo que se va a renderizar en pantalla.
   return (
     <>
-      {/* Encabezado de la página */}
+      <Toast
+        message={toastMessage}
+        type={toastType}
+        onClose={() => setToastMessage("")}
+      />
+
       <PageHeader
-        title="Directorio de Proveedores" // Título grande
-        subtitle="Base de datos centralizada de proveedores" // Texto pequeño debajo
+        title="Directorio de Proveedores"
+        subtitle="Base de datos centralizada de proveedores"
         actions={
-          // Botón que aparece a la derecha del header
           <button
             className="btn btn-success"
-            onClick={abrirNuevo} // Cuando se hace clic, ejecuta abrirNuevo
+            onClick={() => navigate("/proveedores/nuevo")}
           >
             Nuevo Proveedor
           </button>
         }
       />
 
-      {/* Si está cargando, mostramos mensaje */}
-     {loadingLista && (
+      {loadingLista && (
         <div className="alert alert-info">
           Cargando proveedores...
         </div>
       )}
 
-
-        {/* Si hay error, mostramos mensaje */}
-        {error && (
-          <div className="alert alert-danger">
-            {error}
-          </div>
-        )}
-        <div className="card mb-3">
-    <div className="card-body">
-      <div className="row g-2 align-items-center">
-
-        <div className="col-md-6">
-          <input
-            type="text"
-            className="form-control"
-            placeholder="Buscar por razón social, contacto, correo..."
-            value={busqueda}
-            onChange={(e) => setBusqueda(e.target.value)}
-          />
+      {error && (
+        <div className="alert alert-danger">
+          {error}
         </div>
+      )}
 
-        <div className="col-md-2">
-          <select
-            className="form-select"
-            value={filtroEstatus}
-            onChange={(e) => setFiltroEstatus(e.target.value)}
-          >
-            <option value="TODOS">Todos</option>
-            <option value="ACTIVO">Activos</option>
-            <option value="INACTIVO">Inactivos</option>
-          </select>
-        </div>
+      <div className="card mb-3">
+        <div className="card-body">
+          <div className="row g-2 align-items-center">
 
-        <div className="col-md-2 d-flex align-items-center">
-          <div className="form-check form-switch">
-            <input
-              className="form-check-input"
-              type="checkbox"
-              checked={soloActivos}
-              onChange={() => setSoloActivos(!soloActivos)}
-            />
-            <label className="form-check-label">
-              Solo activos
-            </label>
+            <div className="col-md-6">
+              <input
+                type="text"
+                className="form-control"
+                placeholder="Buscar por razón social, contacto, correo..."
+                value={busqueda}
+                onChange={(e) => setBusqueda(e.target.value)}
+              />
+            </div>
+
+            <div className="col-md-2">
+              <select
+                className="form-select"
+                value={filtroEstatus}
+                onChange={(e) => setFiltroEstatus(e.target.value)}
+              >
+                <option value="TODOS">Todos</option>
+                <option value="ACTIVO">Activos</option>
+                <option value="INACTIVO">Inactivos</option>
+              </select>
+            </div>
+
+            <div className="col-md-2 d-flex align-items-center">
+              <div className="form-check form-switch">
+                <input
+                  className="form-check-input"
+                  type="checkbox"
+                  checked={soloActivos}
+                  onChange={() => setSoloActivos(!soloActivos)}
+                />
+                <label className="form-check-label">
+                  Solo activos
+                </label>
+              </div>
+            </div>
+
           </div>
         </div>
       </div>
-    </div>
-  </div>
 
-      {/* Tabla de proveedores */}
       <ProveedoresTable
-        data={proveedoresFiltrados} // Le pasamos la lista filtrada
-        onEditar={abrirEditar}    // Le pasamos función editar
-        onEliminar={eliminarProveedor} // Le pasamos función eliminar
-      />
-
-      {/* Modal (formulario emergente) */}
-      <ProveedorModal
-        show={mostrarForm}              // Controla si se muestra o no
-        proveedor={proveedorEditando}   // Si estamos editando, enviamos datos
-        onClose={cerrarForm}            // Función para cerrar
-        onSave={guardarProveedor}       // Función para guardar
-        errores={erroresForm}
+        data={proveedoresFiltrados}
+        onEditar={abrirEditar}
+        onEliminar={manejarEliminar}
       />
     </>
   );

@@ -1,3 +1,5 @@
+
+import "./Sidebar.css";
 import { NavLink } from "react-router-dom";
 
 export default function Sidebar() {
@@ -58,20 +60,47 @@ export default function Sidebar() {
           Productos
         </NavLink>
 
-        <NavLink //Proveedores
-          to="/proveedores"
-          style={({ isActive }) => ({
-            color: "#fff",
-            textDecoration: "none",
-            padding: "10px 12px",
-            borderRadius: 10,
-            background: isActive ? "#1b7f72" : "transparent",
-          })}
-        >
-          <i className="bi bi-truck me-2"></i>
-          Proveedores
-        </NavLink>
 
+       <div>
+  {/* BOTÓN PADRE */}
+  <button
+  className="sidebar-parent"
+  data-bs-toggle="collapse"
+  data-bs-target="#menuProveedores"
+>
+  <div className="sidebar-parent-content">
+    <i className="bi bi-truck me-2"></i>
+    <span>Proveedores</span>
+  </div>
+
+  <i className="bi bi-chevron-down sidebar-chevron"></i>
+</button>
+
+
+  {/* SUBMENÚ */}
+  <div className="collapse sidebar-submenu" id="menuProveedores">
+
+    <NavLink
+      to="/proveedores"
+      className="sidebar-link"
+    >
+      <i className="bi bi-list-ul me-2"></i>
+      Lista Proveedores
+    </NavLink>
+
+    <NavLink
+      to="/proveedores/nuevo"
+      className="sidebar-link"
+    >
+      <i className="bi-plus-circle"> </i>
+      Nuevo Proveedor
+    </NavLink>
+
+  </div>
+</div>
+
+
+          
         <NavLink //Insumos
           to="/insumos"
           style={({ isActive }) => ({
@@ -100,7 +129,7 @@ export default function Sidebar() {
           Unidades de Medida
         </NavLink> 
 
-         <NavLink //Cotizaciones
+         <NavLink //Nueva Cotizacion
           to="/nuevaCotizacion"
           style={({ isActive }) => ({
             color: "#fff",
@@ -114,7 +143,7 @@ export default function Sidebar() {
           Nueva Cotizacion
         </NavLink> 
 
-          <NavLink //Nueva Cotizacion
+          <NavLink //Cotizaciones
           to="/cotizaciones"
           style={({ isActive }) => ({
             color: "#fff",

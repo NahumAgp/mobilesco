@@ -7,6 +7,8 @@ import UnidadMedida from "./pages/UnidadMedida.jsx";
 import NuevaCotizacion from "./pages/NuevaCotizacion.jsx";
 import Cotizacion from "./pages/Cotizaciones.jsx";
 import ProveedoresPage from "./pages/Proveedores/ProveedoresPage.jsx";
+import ProveedorFormPage from "./pages/Proveedores/ProveedorFormPage.jsx";
+
 
 export default function App() {
   return (
@@ -17,11 +19,14 @@ export default function App() {
 
         <Route path="/tablero" element={<Tablero />} />
         <Route path="/productos" element={<Productos />} />  
-        <Route path="/proveedores" element={<ProveedoresPage />} />
         <Route path="/insumos" element= {<Insumos /> } />
         <Route path="/unidadMedida" element={<UnidadMedida/>}/>
         <Route path="/nuevaCotizacion" element={<NuevaCotizacion />}/>
         <Route path="/cotizaciones" element= {<Cotizacion />} />
+        <Route path="/proveedores" element={<ProveedoresPage />} />
+        <Route path="/proveedores/nuevo" element={<ProveedorFormPage />} />
+        <Route path="/proveedores/:id" element={<ProveedorFormPage />} />
+
 
         {/* opcional: 404 */}
         <Route path="*" element={<Navigate to="/tablero" replace />} />

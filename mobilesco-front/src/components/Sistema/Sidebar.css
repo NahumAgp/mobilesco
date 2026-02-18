@@ -1,0 +1,58 @@
+/* ===== BOTÓN PADRE ===== */
+.sidebar-parent {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 12px;
+  border-radius: 10px;
+  background: transparent;
+  border: none;
+  color: #ffffff;
+  font-weight: 500;
+  cursor: pointer;
+  white-space: nowrap; /* 🔥 evita salto de línea */
+}
+
+.sidebar-parent-content {
+  display: flex;
+  align-items: center;
+}
+
+.sidebar-chevron {
+  font-size: 0.8rem;
+  margin-left: auto; /* 🔥 empuja a la derecha */
+}
+
+
+
+.sidebar-parent:hover {
+  background: rgba(255, 255, 255, 0.08);
+}
+
+/* ===== SUBMENÚ ===== */
+.sidebar-submenu {
+  padding-left: 40px; /* Más indentación */
+  margin-top: 4px;
+}
+
+/* ===== LINKS HIJOS ===== */
+.sidebar-link {
+  display: block;
+  color: #ffffff;
+  font-size: 14px;
+  padding: 8px 0;   /* Más espacio vertical */
+  opacity: 0.85;
+  text-decoration: none;
+}
+
+.sidebar-link:hover {
+  opacity: 1;
+  color: #ffffff;
+}
+
+/* Estado activo */
+.sidebar-link.active {
+  font-weight: 600;
+  opacity: 1;
+}
