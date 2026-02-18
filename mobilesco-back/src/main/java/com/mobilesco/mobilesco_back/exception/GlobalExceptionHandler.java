@@ -1,14 +1,9 @@
 package com.mobilesco.mobilesco_back.exception;
 
-import java.time.Instant;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -16,20 +11,38 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
+    // 🔹 ERRORES DE VALIDACIÓN (@Valid)
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<Map<String, Object>> handleMethodArgumentNotValid(MethodArgumentNotValidException ex) {
+    public ResponseEntity<Map<String, String>> handleValidationErrors(
+            MethodArgumentNotValidException ex) {
 
-        List<String> errors = ex.getBindingResult()
-                .getFieldErrors()
-                .stream()
-                .map(FieldError::getDefaultMessage)
-                .collect(Collectors.toList());
+        Map<String, String> errores = new HashMap<>();
 
-        Map<String, Object> body = new HashMap<>();
-        body.put("timestamp", Instant.now().toString());
-        body.put("status", HttpStatus.BAD_REQUEST.value());
-        body.put("errors", errors);
+        ex.getBindingResult().getFieldErrors().forEach(error ->
+            errores.put(error.getField(), error.getDefaultMessage())
+        );
 
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(body);
+        return ResponseEntity.badRequest().body(errores);
+    }
+
+    // 🔹 ERROR DE CAMPO DUPLICADO
+    @ExceptionHandler(DuplicateFieldException.class)
+    public ResponseEntity<Map<String, String>> handleDuplicateField(
+            DuplicateFieldException ex) {
+
+        Map<String, String> error = new HashMap<>();
+        error.put(ex.getField(), ex.getMessage());
+
+        return ResponseEntity.badRequest().body(error);
+    }
+
+    // 🔹 ERROR GENERAL (solo si algo explota)
+    @ExceptionHandler(Exception.class)
+    public ResponseEntity<Map<String, String>> handleGeneral(Exception ex) {
+
+        Map<String, String> error = new HashMap<>();
+        error.put("error", "Ocurrió un error inesperado");
+
+        return ResponseEntity.internalServerError().body(error);
     }
 }
