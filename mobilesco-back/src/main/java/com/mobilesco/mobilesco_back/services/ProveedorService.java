@@ -23,15 +23,30 @@ public class ProveedorService {
     // --------- Mapper Entity -> DTO ---------
     private ProveedorResponseDTO mapToResponseDTO(ProveedorModel proveedor) {
         ProveedorResponseDTO dto = new ProveedorResponseDTO();
+        
         dto.setId(proveedor.getId());
+        //IDENTIDAD
         dto.setRazonSocial(proveedor.getRazonSocial());
         dto.setRfc(proveedor.getRfc());
+        //NOMBRE
         dto.setNombre(proveedor.getNombre());
-        dto.setDireccion(proveedor.getDireccion());
+        dto.setApellidoPaterno(proveedor.getApellidoPaterno());
+        dto.setApellidoMaterno(proveedor.getApellidoMaterno());
+        //DIRECCION
+        dto.setEstado(proveedor.getEstado());
+        dto.setCiudad(proveedor.getCiudad());
+        dto.setColonia(proveedor.getColonia());
+        dto.setCalle(proveedor.getCalle());
+        dto.setNumeroExterior(proveedor.getNumeroExterior());
+        dto.setNumeroInterior(proveedor.getNumeroInterior());
+        dto.setCodigoPostal(proveedor.getCodigoPostal());
+        //CONTACTO
         dto.setTelefono(proveedor.getTelefono());
         dto.setCorreo(proveedor.getCorreo());
+        //FECHAS
         dto.setFechaRegistro(proveedor.getFechaRegistro());
         dto.setFechaUltimoContacto(proveedor.getFechaUltimoContacto()); 
+        //ESTADO
         dto.setActivo(proveedor.getActivo());
         return dto;
     }
@@ -45,22 +60,34 @@ public class ProveedorService {
     // --------- CREATE ---------
     public ProveedorResponseDTO crear( ProveedorCreateDTO dto) {
         proveedorRepository
-    .findByRazonSocialIgnoreCase(dto.getRazonSocial())
-    .ifPresent(p -> {
-        throw new DuplicateFieldException(
-            "razonSocial",
-            "Ya existe un proveedor con esa razón social"
-        );
-    });
-
-
+        .findByRazonSocialIgnoreCase(dto.getRazonSocial())
+        .ifPresent(p -> {
+            throw new DuplicateFieldException(
+                "razonSocial",
+                "Ya existe un proveedor con esa razón social"
+            );
+        });
+    
         ProveedorModel proveedor = new ProveedorModel();
+        //IDENTIDAD
         proveedor.setRazonSocial(dto.getRazonSocial());
         proveedor.setRfc(dto.getRfc());
+        //NOMBRE
         proveedor.setNombre(dto.getNombre());
-        proveedor.setDireccion(dto.getDireccion());
+        proveedor.setApellidoPaterno(dto.getApellidoPaterno());
+        proveedor.setApellidoMaterno(dto.getApellidoMaterno());
+        //DIRECCION
+        proveedor.setEstado(dto.getEstado());
+        proveedor.setCiudad(dto.getCiudad());
+        proveedor.setColonia(dto.getColonia());
+        proveedor.setCalle(dto.getCalle());
+        proveedor.setNumeroExterior(dto.getNumeroExterior());
+        proveedor.setNumeroInterior(dto.getNumeroInterior());
+        proveedor.setCodigoPostal(dto.getCodigoPostal());
+        //CONTACTO
         proveedor.setTelefono(dto.getTelefono());
         proveedor.setCorreo(dto.getCorreo());
+        //ESTADO
         proveedor.setActivo(true); // regla: nuevo proveedor inicia activo
 
         ProveedorModel guardado = proveedorRepository.save(proveedor);
@@ -91,26 +118,37 @@ public class ProveedorService {
     // --------- UPDATE ---------
     public Optional<ProveedorResponseDTO> actualizar(Long id, ProveedorUpdateDTO dto) {
         proveedorRepository
-    .findByRazonSocialIgnoreCase(dto.getRazonSocial())
-    .ifPresent(p -> {
-        if (!p.getId().equals(id)) {
-            throw new DuplicateFieldException(
-                "razonSocial",
-                "Ya existe un proveedor con esa razón social"
-            );
-        }
-    });
+        .findByRazonSocialIgnoreCase(dto.getRazonSocial())
+        .ifPresent(p -> {
+            if (!p.getId().equals(id)) {
+                throw new DuplicateFieldException(
+                    "razonSocial",
+                    "Ya existe un proveedor con esa razón social"
+                );
+            }
+        });
 
         return proveedorRepository.findById(id).map(existente -> {
+            //IDENTIDAD
             existente.setRazonSocial(dto.getRazonSocial());
             existente.setRfc(dto.getRfc());
+            //NOMBRE
             existente.setNombre(dto.getNombre());
-            existente.setDireccion(dto.getDireccion());
+            existente.setApellidoPaterno(dto.getApellidoPaterno());
+            existente.setApellidoMaterno(dto.getApellidoMaterno());
+            //DIRECCION
+            existente.setEstado(dto.getEstado());
+            existente.setCiudad(dto.getCiudad());
+            existente.setColonia(dto.getColonia());
+            existente.setCalle(dto.getCalle());
+            existente.setNumeroExterior(dto.getNumeroExterior());
+            existente.setNumeroInterior(dto.getNumeroInterior());
+            existente.setCodigoPostal(dto.getCodigoPostal());
+            //CONTACTO
             existente.setTelefono(dto.getTelefono());
             existente.setCorreo(dto.getCorreo());
-            existente.setFechaUltimoContacto(dto.getFechaUltimoContacto());
+            //ESTADO
             existente.setActivo(dto.getActivo());
-            // activo no se toca aquí (si quieres, hacemos un DTO específico para eso)
 
             ProveedorModel guardado = proveedorRepository.save(existente);
             return mapToResponseDTO(guardado);

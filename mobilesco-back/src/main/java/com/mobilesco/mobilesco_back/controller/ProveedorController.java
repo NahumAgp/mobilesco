@@ -6,7 +6,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -15,6 +14,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.mobilesco.mobilesco_back.config.ApiPaths;
 import com.mobilesco.mobilesco_back.dto.proveedor.ProveedorCreateDTO;
 import com.mobilesco.mobilesco_back.dto.proveedor.ProveedorResponseDTO;
 import com.mobilesco.mobilesco_back.dto.proveedor.ProveedorUpdateDTO;
@@ -27,8 +27,9 @@ import jakarta.validation.Valid;
 
 @Tag(name = "Proveedor", description = "CRUD y gestión de proveedores")
 @RestController
-@RequestMapping("/proveedor")
+@RequestMapping(ApiPaths.PROVEEDORES)
 public class ProveedorController {
+
 
     @Autowired
     private ProveedorService proveedorService;
@@ -100,21 +101,22 @@ public class ProveedorController {
                   : ResponseEntity.notFound().build();
     }
 
+    /* Futuro: Si cambia de la logica del negocio a soft delete, se pueden agregar estos endpoints para activar/desactivar sin eliminar de la BD.
 
-    @Operation(summary = "Desactivar proveedor", description = "Soft delete: marca activo=false sin borrar de la BD.")
-    @PatchMapping("/{id}/desactivar")
-    public ResponseEntity<Void> desactivar(@PathVariable Long id) {
-        boolean ok = proveedorService.desactivar(id);
-        return ok ? ResponseEntity.noContent().build()
-                : ResponseEntity.notFound().build();
-    }
+        @Operation(summary = "Desactivar proveedor", description = "Soft delete: marca activo=false sin borrar de la BD.")
+        @PatchMapping("/{id}/desactivar")
+        public ResponseEntity<Void> desactivar(@PathVariable Long id) {
+            boolean ok = proveedorService.desactivar(id);
+            return ok ? ResponseEntity.noContent().build()
+                    : ResponseEntity.notFound().build();
+        }
 
-    @Operation(summary = "Activar proveedor", description = "Reactiva un proveedor marcando activo=true.")
-    @PatchMapping("/{id}/activar")
-    public ResponseEntity<Void> activar(@PathVariable Long id) {
-        boolean ok = proveedorService.activar(id);
-        return ok ? ResponseEntity.noContent().build()
-                : ResponseEntity.notFound().build();
-    }
-
+        @Operation(summary = "Activar proveedor", description = "Reactiva un proveedor marcando activo=true.")
+        @PatchMapping("/{id}/activar")
+        public ResponseEntity<Void> activar(@PathVariable Long id) {
+            boolean ok = proveedorService.activar(id);
+            return ok ? ResponseEntity.noContent().build()
+                    : ResponseEntity.notFound().build();
+        }
+    */
 }

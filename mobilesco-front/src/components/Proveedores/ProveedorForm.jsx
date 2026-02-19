@@ -1,259 +1,200 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import {
-  obtenerProveedorPorId,
-  crearProveedor,
-  actualizarProveedor
-} from "../../services/proveedores.js";
+import { obtenerProveedorPorId, crearProveedor, actualizarProveedor } from "../../services/proveedores.js";
 import Toast from "../ui/Toast.jsx";
 
 export default function ProveedorForm({ proveedorId }) {
-
   const [toastMessage, setToastMessage] = useState("");
   const [toastType, setToastType] = useState("success");
-
+  const [erroresBackend, setErroresBackend] = useState({});
+  
   const navigate = useNavigate();
   const esEdicion = Boolean(proveedorId);
 
-  // =========================
-  // ESTADO DEL FORMULARIO
-  // =========================
-  const [erroresBackend, setErroresBackend] = useState({});
-
+  // Estado con la estructura normalizada que definimos
   const [formData, setFormData] = useState({
     razonSocial: "",
     rfc: "",
     nombre: "",
-    direccion: "",
-    correo: "",
+    apellidoPaterno: "",
+    apellidoMaterno: "",
+    estado: "",
+    ciudad: "",
+    colonia: "",
+    calle: "",
+    numeroExterior: "",
+    numeroInterior: "",
+    codigoPostal: "",
     telefono: "",
+    correo: "",
     activo: true
   });
 
-  // =========================
-  // CARGAR PROVEEDOR SI ES EDICIÓN
-  // =========================
   useEffect(() => {
     const cargar = async () => {
       if (!proveedorId) return;
-
       try {
         const data = await obtenerProveedorPorId(proveedorId);
-
-        setFormData({
-          razonSocial: data.razonSocial ?? "",
-          rfc: data.rfc ?? "",
-          nombre: data.nombre ?? "",
-          direccion: data.direccion ?? "",
-          correo: data.correo ?? "",
-          telefono: data.telefono ?? "",
-          activo: data.activo ?? true,
-        });
-
+        setFormData({ ...data }); // Asumiendo que el backend trae la estructura nueva
       } catch (e) {
-        console.error("Error cargando proveedor:", e);
+        console.error("Error cargando:", e);
       }
     };
-
     cargar();
   }, [proveedorId]);
 
-  // =========================
-  // MANEJAR CAMBIOS
-  // =========================
   function handleChange(e) {
     const { name, value, type, checked } = e.target;
-
-    setFormData({
-      ...formData,
-      [name]: type === "checkbox" ? checked : value
-    });
+    setFormData({ ...formData, [name]: type === "checkbox" ? checked : value });
   }
 
-  // =========================
-  // GUARDAR
-  // =========================
   async function handleSubmit(e) {
     e.preventDefault();
-
     try {
       setErroresBackend({});
-
       if (esEdicion) {
         await actualizarProveedor(proveedorId, formData);
-        setToastType("success");
-        setToastMessage("Proveedor actualizado correctamente");
+        setToastMessage("¡Proveedor actualizado con éxito!");
       } else {
         await crearProveedor(formData);
-        setToastType("success");
-        setToastMessage("Proveedor creado correctamente");
+        setToastMessage("¡Proveedor registrado con éxito!");
       }
-
-      // Espera 1 segundo antes de redirigir
-      setTimeout(() => {
-        navigate("/proveedores");
-}, 1000);
-
-
+      setToastType("success");
+      setTimeout(() => navigate("/proveedores"), 1500);
     } catch (error) {
-
-  // Si es un objeto con errores por campo
-  if (typeof error === "object" && !Array.isArray(error)) {
-    setErroresBackend(error);
-    return;
+      if (typeof error === "object") setErroresBackend(error);
+      setToastType("danger");
+      setToastMessage("Error al guardar los datos");
+    }
   }
 
-  setToastType("danger");
-  setToastMessage("Ocurrió un error inesperado");
+  // Helper para clases de error
+  const inputClass = (field) => `form-control ${erroresBackend[field] ? "is-invalid" : "border-soft"}`;
 
-  console.error(error);
-}
-
-
-  }
-
-  // =========================
-  // RENDER
-  // =========================
   return (
-    <>
-      <Toast
-        message={toastMessage}
-        type={toastType}
-        onClose={() => setToastMessage("")}
-      />
+    <div className="container py-4">
+      <Toast message={toastMessage} type={toastType} onClose={() => setToastMessage("")} />
+      
+      <div className="d-flex justify-content-between align-items-center mb-4">
+        <h2 className="fw-bold text-primary">{esEdicion ? 'Editar Proveedor' : 'Nuevo Proveedor'}</h2>
+        <span className={`badge ${formData.activo ? 'bg-success' : 'bg-secondary'}`}>
+          {formData.activo ? 'Cuenta Activa' : 'Inactiva'}
+        </span>
+      </div>
 
-        <form onSubmit={handleSubmit} noValidate>
-
-          {/* RAZÓN SOCIAL */}
-          <div className="mb-3">
-            <label className="form-label">Razón Social</label>
-            <input
-              type="text"
-              name="razonSocial"
-              className={`form-control ${erroresBackend.razonSocial ? "is-invalid" : ""}`}
-              value={formData.razonSocial}
-              onChange={handleChange}
-            />
-            <div className="invalid-feedback">
-              {erroresBackend.razonSocial}
+      <form onSubmit={handleSubmit} noValidate>
+        {/* SECCIÓN 1: IDENTIDAD Y CONTACTO */}
+        <div className="card shadow-sm border-0 mb-4">
+          <div className="card-header bg-white py-3">
+            <h5 className="mb-0 text-secondary"><i className="bi bi-person-badge me-2"></i>Información General</h5>
+          </div>
+          <div className="card-body">
+            <div className="row g-3">
+              <div className="col-md-8">
+                <label className="form-label fw-semibold">Razón Social</label>
+                <input type="text" name="razonSocial" className={inputClass("razonSocial")} value={formData.razonSocial} onChange={handleChange} placeholder="Nombre legal de la empresa" />
+                <div className="invalid-feedback">{erroresBackend.razonSocial}</div>
+              </div>
+              <div className="col-md-4">
+                <label className="form-label fw-semibold">RFC</label>
+                <input type="text" name="rfc" className={inputClass("rfc")} value={formData.rfc} onChange={handleChange} placeholder="ABC123456XYZ" />
+              </div>
+              
+              <div className="col-md-4">
+                <label className="form-label fw-semibold">Nombre del Contacto</label>
+                <input type="text" name="nombre" className={inputClass("nombre")} value={formData.nombre} onChange={handleChange} />
+                 <div className="invalid-feedback">{erroresBackend.nombre}</div>
+              </div>
+              <div className="col-md-4">
+                <label className="form-label fw-semibold">Apellido Paterno</label>
+                <input type="text" name="apellidoPaterno" className="form-control" value={formData.apellidoPaterno} onChange={handleChange} />
+              </div>
+              <div className="col-md-4">
+                <label className="form-label fw-semibold">Apellido Materno</label>
+                <input type="text" name="apellidoMaterno" className="form-control" value={formData.apellidoMaterno} onChange={handleChange} />
+              </div>
             </div>
           </div>
+        </div>
 
-          {/* RFC */}
-          <div className="mb-3">
-            <label className="form-label">RFC</label>
-            <input
-              type="text"
-              name="rfc"
-              className={`form-control ${erroresBackend.rfc ? "is-invalid" : ""}`}
-              value={formData.rfc}
-              onChange={handleChange}
-            />
-            <div className="invalid-feedback">
-              {erroresBackend.rfc}
+        {/* SECCIÓN 2: DIRECCIÓN NORMALIZADA */}
+        <div className="card shadow-sm border-0 mb-4">
+          <div className="card-header bg-white py-3">
+            <h5 className="mb-0 text-secondary"><i className="bi bi-geo-alt me-2"></i>Ubicación </h5>
+          </div>
+          <div className="card-body">
+            <div className="row g-3">
+              <div className="col-md-6">
+                <label className="form-label fw-semibold">Calle</label>
+                <input type="text" name="calle" className="form-control" value={formData.calle} onChange={handleChange} />
+              </div>
+              <div className="col-md-3">
+                <label className="form-label fw-semibold">Num. Ext</label>
+                <input type="text" name="numeroExterior" className="form-control" value={formData.numeroExterior} onChange={handleChange} />
+              </div>
+              <div className="col-md-3">
+                <label className="form-label fw-semibold">Num. Int</label>
+                <input type="text" name="numeroInterior" className="form-control" value={formData.numeroInterior} onChange={handleChange} />
+              </div>
+              <div className="col-md-4">
+                <label className="form-label fw-semibold">Colonia</label>
+                <input type="text" name="colonia" className="form-control" value={formData.colonia} onChange={handleChange} />
+              </div>
+              <div className="col-md-4">
+                <label className="form-label fw-semibold">Ciudad / Municipio</label>
+                <input type="text" name="ciudad" className="form-control" value={formData.ciudad} onChange={handleChange} />
+              </div>
+              <div className="col-md-2">
+                <label className="form-label fw-semibold">Estado</label>
+                <input type="text" name="estado" className="form-control" value={formData.estado} onChange={handleChange} />
+              </div>
+              <div className="col-md-2">
+                <label className="form-label fw-semibold">C.P.</label>
+                <input type="text" name="codigoPostal" className="form-control" value={formData.codigoPostal} onChange={handleChange} />
+              </div>
             </div>
           </div>
+        </div>
 
-          {/* NOMBRE */}
-          <div className="mb-3">
-            <label className="form-label">Nombre</label>
-            <input
-              type="text"
-              name="nombre"
-              className={`form-control ${erroresBackend.nombre ? "is-invalid" : ""}`}
-              value={formData.nombre}
-              onChange={handleChange}
-            />
-            <div className="invalid-feedback">
-              {erroresBackend.nombre}
+        {/* SECCIÓN 3: CONTACTO DIRECTO */}
+        <div className="row mb-4">
+            <div className="col-md-6">
+                <div className="card shadow-sm border-0 h-100">
+                    <div className="card-body">
+                        <label className="form-label fw-bold">Teléfono de contacto</label>
+                        <div className="input-group">
+                            <span className="input-group-text bg-light"><i className="bi bi-telephone"></i></span>
+                            <input type="text" name="telefono" className={inputClass("telefono")} value={formData.telefono} onChange={handleChange} />
+                        </div>
+                        <div className="small text-danger mt-1">{erroresBackend.telefono}</div>
+                    </div>
+                </div>
             </div>
-          </div>
-
-          {/* DIRECCIÓN */}
-          <div className="mb-3">
-            <label className="form-label">Dirección</label>
-            <input
-              type="text"
-              name="direccion"
-              className="form-control"
-              value={formData.direccion}
-              onChange={handleChange}
-            />
-          </div>
-
-          {/* CORREO */}
-          <div className="mb-3">
-            <label className="form-label">Correo</label>
-            <input
-              type="email"
-              name="correo"
-              className={`form-control ${erroresBackend.correo ? "is-invalid" : ""}`}
-              value={formData.correo}
-              onChange={handleChange}
-            />
-            <div className="invalid-feedback">
-              {erroresBackend.correo}
+            <div className="col-md-6">
+                <div className="card shadow-sm border-0 h-100">
+                    <div className="card-body">
+                        <label className="form-label fw-bold">Correo electrónico</label>
+                        <div className="input-group">
+                            <span className="input-group-text bg-light"><i className="bi bi-envelope"></i></span>
+                            <input type="email" name="correo" className={inputClass("correo")} value={formData.correo} onChange={handleChange} />
+                        </div>
+                        <div className="small text-danger mt-1">{erroresBackend.correo}</div>
+                    </div>
+                </div>
             </div>
-          </div>
+        </div>
 
-       {/* TELÉFONO */}
-<div className="mb-3">
-  <label className="form-label">Teléfono</label>
-
-  <input
-    type="text"
-    name="telefono"
-    className={`form-control ${
-      erroresBackend.telefono ? "is-invalid" : ""
-    }`}
-    value={formData.telefono}
-    onChange={handleChange}
-  />
-
-  {erroresBackend.telefono && (
-    <div className="invalid-feedback">
-      {erroresBackend.telefono}
+        <div className="d-flex justify-content-between align-items-center bg-white p-3 rounded shadow-sm">
+            <div className="form-check form-switch">
+                <input className="form-check-input" type="checkbox" name="activo" checked={formData.activo} onChange={handleChange} id="switchActivo" />
+                <label className="form-check-label fw-semibold" htmlFor="switchActivo">Proveedor habilitado</label>
+            </div>
+            <div className="gap-2 d-flex">
+                <button type="button" className="btn btn-light px-4" onClick={() => navigate("/proveedores")}>Cancelar</button>
+                <button type="submit" className="btn btn-primary px-5 fw-bold">Guardar Cambios</button>
+            </div>
+        </div>
+      </form>
     </div>
-  )}
-</div>
-
-
-
-          {/* ACTIVO */}
-          <div className="form-check mb-4">
-            <input
-              type="checkbox"
-              className="form-check-input"
-              name="activo"
-              checked={formData.activo}
-              onChange={handleChange}
-            />
-            <label className="form-check-label">
-              Activo
-            </label>
-          </div>
-
-          {/* BOTONES */}
-          <div className="d-flex justify-content-end gap-2">
-            <button
-              type="button"
-              className="btn btn-secondary"
-              onClick={() => navigate("/proveedores")}
-            >
-              Cancelar
-            </button>
-
-            <button
-              type="submit"
-              className="btn btn-primary"
-            >
-              Guardar
-            </button>
-          </div>
-
-        </form>
-    </>
-
   );
 }

@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.mobilesco.mobilesco_back.config.ApiPaths;
 import com.mobilesco.mobilesco_back.dto.unidadMedida.UnidadMedidaCreateDTO;
 import com.mobilesco.mobilesco_back.dto.unidadMedida.UnidadMedidaResponseDTO;
 import com.mobilesco.mobilesco_back.dto.unidadMedida.UnidadMedidaUpdateDTO;
@@ -25,8 +26,9 @@ import jakarta.validation.Valid;
 
 @Tag(name = "UnidadMedida", description = "CRUD y gestión de unidades de medida")
 @RestController
-@RequestMapping("/unidadMedida")
+@RequestMapping(ApiPaths.UNIDADES_MEDIDA)
 public class UnidadMedidaController {
+
     
     @Autowired
     private UnidadMedidaService unidadMedidaService;

@@ -6,16 +6,30 @@ import jakarta.validation.constraints.Pattern;
 
 public class ProveedorCreateDTO {
 
+    // IDENTIDAD
     @NotBlank(message = "La razón social es obligatoria")
     private String razonSocial;
 
+    @NotBlank(message = "El RFC es obligatorio")
     private String rfc;
 
+    // NOMBRE
     @NotBlank(message = "El nombre del contacto es obligatorio")
     private String nombre;
+    
+    private String apellidoPaterno;
+    private String apellidoMaterno;
 
-    private String direccion;
+    // DIRECCION
+    private String estado;
+    private String ciudad;
+    private String colonia;
+    private String calle;
+    private String numeroExterior;
+    private String numeroInterior;
+    private String codigoPostal;
 
+    // CONTACTO
     @NotBlank(message = "El teléfono es obligatorio")
     @Pattern(
         regexp = "^[0-9]{10}$",
@@ -23,10 +37,12 @@ public class ProveedorCreateDTO {
     )
     private String telefono;
 
+    @NotBlank(message = "El correo es obligatorio")
     @Email(message = "El correo debe ser válido")
     private String correo;
 
-    // Getters y Setters
+    // GETTERS & SETTERS
+
     public String getRazonSocial() {
         return razonSocial;
     }
@@ -51,12 +67,76 @@ public class ProveedorCreateDTO {
         this.nombre = nombre;
     }
 
-    public String getDireccion() {
-        return direccion;
+    public String getApellidoPaterno() {
+        return apellidoPaterno;
     }
 
-    public void setDireccion(String direccion) {
-        this.direccion = direccion;
+    public void setApellidoPaterno(String apellidoPaterno) {
+        this.apellidoPaterno = apellidoPaterno;
+    }
+
+    public String getApellidoMaterno() {
+        return apellidoMaterno;
+    }
+
+    public void setApellidoMaterno(String apellidoMaterno) {
+        this.apellidoMaterno = apellidoMaterno;
+    }
+
+    public String getEstado() {
+        return estado;
+    }
+
+    public void setEstado(String estado) {
+        this.estado = estado;
+    }
+
+    public String getCiudad() {
+        return ciudad;
+    }
+
+    public void setCiudad(String ciudad) {
+        this.ciudad = ciudad;
+    }
+
+    public String getColonia() {
+        return colonia;
+    }
+
+    public void setColonia(String colonia) {
+        this.colonia = colonia;
+    }
+
+    public String getCalle() {
+        return calle;
+    }
+
+    public void setCalle(String calle) {
+        this.calle = calle;
+    }
+
+    public String getNumeroExterior() {
+        return numeroExterior;
+    }
+
+    public void setNumeroExterior(String numeroExterior) {
+        this.numeroExterior = numeroExterior;
+    }
+
+    public String getNumeroInterior() {
+        return numeroInterior;
+    }
+
+    public void setNumeroInterior(String numeroInterior) {
+        this.numeroInterior = numeroInterior;
+    }
+
+    public String getCodigoPostal() {
+        return codigoPostal;
+    }
+
+    public void setCodigoPostal(String codigoPostal) {
+        this.codigoPostal = codigoPostal;
     }
 
     public String getTelefono() {
@@ -74,7 +154,5 @@ public class ProveedorCreateDTO {
     public void setCorreo(String correo) {
         this.correo = correo;
     }
-
-    // Getters y Setters
     
 }

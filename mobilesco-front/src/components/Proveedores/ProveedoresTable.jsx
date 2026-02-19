@@ -5,6 +5,7 @@
 export default function ProveedoresTable({ data, onEditar, onEliminar }) {
 
   return (
+    
     <div className="card">
         
       
@@ -19,10 +20,12 @@ export default function ProveedoresTable({ data, onEditar, onEliminar }) {
               <th>Id</th>
               <th>Razón Social</th>
               <th>Contacto</th>
+              <th>Dirección</th>
               <th>Correo</th>
               <th>Teléfono</th>
               <th>Estado</th>
               <th>Fecha de Registro</th>
+              <th>Ultima Fecha de Contacto</th>
               <th>Acciones</th>
             </tr>
           </thead>
@@ -39,19 +42,33 @@ export default function ProveedoresTable({ data, onEditar, onEliminar }) {
                   {/* Mostramos cada campo */}
                   <td>{proveedor.id}</td>
                   <td>{proveedor.razonSocial}</td>
-                  <td>{proveedor.nombre} </td>
+                  <td>{proveedor.nombre} {proveedor.apellidoPaterno} {proveedor.apellidoMaterno}</td>
+                  <td>{proveedor.calle} #{proveedor.numeroExterior}/{proveedor.numeroInterior}, {proveedor.colonia}. CP {proveedor.codigoPostal}, {proveedor.ciudad}, {proveedor.estado}</td>
                   <td>{proveedor.correo}</td>
-                  <td>{proveedor.telefono}</td>
-
+                  <td>{proveedor.telefono} </td>
+                
                   {/* Convertimos booleano en texto */}
                   <td>
-                    {proveedor.activo ? "Activo" : "Inactivo"}
+                    <span
+                      className={
+                        proveedor.activo
+                          ? "badge bg-success-subtle text-success border border-success-subtle"
+                          : "badge bg-secondary-subtle text-secondary border border-secondary-subtle"
+                      }
+                    >
+                      {proveedor.activo ? "Activo" : "Inactivo"}
+                    </span>
                   </td>
 
                   {/* Formateamos fecha si existe */}
                   <td>
                     {proveedor.fechaRegistro
                       ? new Date(proveedor.fechaRegistro).toLocaleDateString()
+                      : "-"}
+                  </td>
+                  <td>
+                    {proveedor.fechaUltimoContacto
+                      ? new Date(proveedor.fechaUltimoContacto).toLocaleDateString()
                       : "-"}
                   </td>
                   
