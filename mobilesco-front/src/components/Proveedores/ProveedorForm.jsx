@@ -95,37 +95,21 @@ export default function ProveedorForm({ proveedorId }) {
 }, 1000);
 
 
-    } catch (e) {
-      setToastType("danger");
-      setToastMessage("Ocurrió un error al guardar");
+    } catch (error) {
 
-      if (e?.errors) {
-        const erroresPorCampo = {};
+  // Si es un objeto con errores por campo
+  if (typeof error === "object" && !Array.isArray(error)) {
+    setErroresBackend(error);
+    return;
+  }
 
-        e.errors.forEach((msg) => {
-          const m = msg.toLowerCase();
+  setToastType("danger");
+  setToastMessage("Ocurrió un error inesperado");
 
-          if (m.includes("teléfono") || m.includes("telefono"))
-            erroresPorCampo.telefono = msg;
+  console.error(error);
+}
 
-          if (m.includes("correo"))
-            erroresPorCampo.correo = msg;
 
-          if (m.includes("razón social"))
-            erroresPorCampo.razonSocial = msg;
-
-          if (m.includes("nombre"))
-            erroresPorCampo.nombre = msg;
-
-          if (m.includes("rfc"))
-            erroresPorCampo.rfc = msg;
-        });
-
-        setErroresBackend(erroresPorCampo);
-      }
-
-      console.error(e);
-    }
   }
 
   // =========================
@@ -213,20 +197,28 @@ export default function ProveedorForm({ proveedorId }) {
             </div>
           </div>
 
-          {/* TELÉFONO */}
-          <div className="mb-3">
-            <label className="form-label">Teléfono</label>
-            <input
-              type="text"
-              name="telefono"
-              className={`form-control ${erroresBackend.telefono ? "is-invalid" : ""}`}
-              value={formData.telefono}
-              onChange={handleChange}
-            />
-            <div className="invalid-feedback">
-              {erroresBackend.telefono}
-            </div>
-          </div>
+       {/* TELÉFONO */}
+<div className="mb-3">
+  <label className="form-label">Teléfono</label>
+
+  <input
+    type="text"
+    name="telefono"
+    className={`form-control ${
+      erroresBackend.telefono ? "is-invalid" : ""
+    }`}
+    value={formData.telefono}
+    onChange={handleChange}
+  />
+
+  {erroresBackend.telefono && (
+    <div className="invalid-feedback">
+      {erroresBackend.telefono}
+    </div>
+  )}
+</div>
+
+
 
           {/* ACTIVO */}
           <div className="form-check mb-4">

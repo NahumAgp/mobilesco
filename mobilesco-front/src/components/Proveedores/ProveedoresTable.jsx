@@ -39,7 +39,7 @@ export default function ProveedoresTable({ data, onEditar, onEliminar }) {
                   {/* Mostramos cada campo */}
                   <td>{proveedor.id}</td>
                   <td>{proveedor.razonSocial}</td>
-                  <td>{proveedor.nombre}</td>
+                  <td>{proveedor.nombre} </td>
                   <td>{proveedor.correo}</td>
                   <td>{proveedor.telefono}</td>
 
