@@ -1,12 +1,12 @@
-package com.mobilesco.mobilesco_back.exception;
+package com.mobilesco.mobilesco_back.exceptions;
 
 import java.util.Map;
 
 public class ApiErrorResponse {
 
-    private boolean success;
-    private String message;
-    private Map<String, String> errors;
+    private final boolean success;
+    private final String message;
+    private final Map<String, String> errors;
 
     public ApiErrorResponse(boolean success, String message, Map<String, String> errors) {
         this.success = success;

@@ -1,4 +1,4 @@
-package com.mobilesco.mobilesco_back.exception;
+package com.mobilesco.mobilesco_back.exceptions;
 
 public class DuplicateFieldException extends RuntimeException {
 

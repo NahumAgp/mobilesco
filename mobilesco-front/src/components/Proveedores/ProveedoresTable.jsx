@@ -5,14 +5,19 @@
 export default function ProveedoresTable({ data, onEditar, onEliminar }) {
 
   return (
-    
     <div className="card">
-        
-      
-      {/* Hace que la tabla tenga scroll horizontal si es necesario */}
-      <div className="table-responsive">
 
-        <table className="table table-hover mb-0">
+      {/* 🔥 Scroll horizontal */}
+      <div
+  className="table-responsive"
+  style={{
+    maxHeight: "700px",
+    overflowY: "auto"
+  }}
+>
+
+
+        <table className="table table-hover mb-0" style={{ minWidth: "1400px" }}>
 
           {/* ================== CABECERA ================== */}
           <thead className="table-light">
@@ -33,21 +38,28 @@ export default function ProveedoresTable({ data, onEditar, onEliminar }) {
           {/* ================== CUERPO ================== */}
           <tbody>
 
-            {/* Si hay proveedores, los recorremos */}
             {data && data.length > 0 ? (
 
               data.map((proveedor) => (
-               <tr key={proveedor.id} style={{ cursor: "pointer" }} onClick={() => onEditar(proveedor)}>
+                <tr
+                  key={proveedor.id}
+                  style={{ cursor: "pointer" }}
+                  onClick={() => onEditar(proveedor)}
+                >
 
-                  {/* Mostramos cada campo */}
                   <td>{proveedor.id}</td>
                   <td>{proveedor.razonSocial}</td>
-                  <td>{proveedor.nombre} {proveedor.apellidoPaterno} {proveedor.apellidoMaterno}</td>
-                  <td>{proveedor.calle} #{proveedor.numeroExterior}/{proveedor.numeroInterior}, {proveedor.colonia}. CP {proveedor.codigoPostal}, {proveedor.ciudad}, {proveedor.estado}</td>
+                  <td>
+                    {proveedor.nombre} {proveedor.apellidoPaterno} {proveedor.apellidoMaterno}
+                  </td>
+                  <td>
+                    {proveedor.calle} #{proveedor.numeroExterior}/{proveedor.numeroInterior},
+                    {" "} {proveedor.colonia}. CP {proveedor.codigoPostal},
+                    {" "} {proveedor.ciudad}, {proveedor.estado}
+                  </td>
                   <td>{proveedor.correo}</td>
-                  <td>{proveedor.telefono} </td>
-                
-                  {/* Convertimos booleano en texto */}
+                  <td>{proveedor.telefono}</td>
+
                   <td>
                     <span
                       className={
@@ -60,35 +72,38 @@ export default function ProveedoresTable({ data, onEditar, onEliminar }) {
                     </span>
                   </td>
 
-                  {/* Formateamos fecha si existe */}
                   <td>
                     {proveedor.fechaRegistro
                       ? new Date(proveedor.fechaRegistro).toLocaleDateString()
                       : "-"}
                   </td>
+
                   <td>
                     {proveedor.fechaUltimoContacto
                       ? new Date(proveedor.fechaUltimoContacto).toLocaleDateString()
                       : "-"}
                   </td>
-                  
 
-                  {/* Botones */}
                   <td>
                     <button
                       className="btn btn-sm btn-outline-primary me-1"
-                      onClick={(e) => { e.stopPropagation(); onEditar(proveedor); }}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        onEditar(proveedor);
+                      }}
                     >
                       Editar
                     </button>
 
                     <button
                       className="btn btn-sm btn-outline-danger"
-                      onClick={(e) => { e.stopPropagation(); onEliminar(proveedor.id); }}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        onEliminar(proveedor.id);
+                      }}
                     >
                       Eliminar
                     </button>
-
                   </td>
 
                 </tr>
@@ -96,9 +111,9 @@ export default function ProveedoresTable({ data, onEditar, onEliminar }) {
 
             ) : (
 
-              // Si no hay registros mostramos mensaje
               <tr>
-                <td colSpan="8" className="text-center text-muted py-3">
+                {/* 🔥 Tienes 10 columnas */}
+                <td colSpan="10" className="text-center text-muted py-3">
                   No hay proveedores registrados
                 </td>
               </tr>
@@ -107,6 +122,7 @@ export default function ProveedoresTable({ data, onEditar, onEliminar }) {
 
           </tbody>
         </table>
+
       </div>
     </div>
   );

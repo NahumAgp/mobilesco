@@ -48,24 +48,47 @@ export default function ProveedoresPage() {
     }
   };
 
-  const proveedoresFiltrados = proveedores.filter((p) => {
-    // console.log(proveedores) 
-    const coincideBusqueda =
-      p.razonSocial.toLowerCase().includes(busqueda.toLowerCase()) ||
-      p.nombre?.toLowerCase().includes(busqueda.toLowerCase()) ||
-      p.correo?.toLowerCase().includes(busqueda.toLowerCase());
+ const proveedoresFiltrados = proveedores.filter((p) => {
+  // 1. Normalizamos la búsqueda del usuario (quitamos espacios extras y pasamos a minúsculas)
+  const terminoBusqueda = busqueda.toLowerCase().trim().replace(/\s+/g, ' ');
+  
+  // Si no hay nada escrito, mostramos todo, pero respetando los otros filtros (Estatus/Solo Activos)
+  const pasaFiltroTexto = (() => {
+    if (!terminoBusqueda) return true;
 
-    const coincideEstatus =
-      filtroEstatus === "TODOS" ||
-      (filtroEstatus === "ACTIVO" && p.activo) ||
-      (filtroEstatus === "INACTIVO" && !p.activo);
+    // 2. Separamos lo que escribió el usuario en palabras individuales
+    // Ejemplo: "Jose Alcala" -> ["jose", "alcala"]
+    const palabras = terminoBusqueda.split(' ');
 
-    const coincideSoloActivos =
-      !soloActivos || p.activo;
+    // 3. Construimos una sola cadena con toda la info del proveedor para comparar
+    const infoProveedor = [
+      p.razonSocial,
+      p.rfc,
+      p.nombre,
+      p.apellidoPaterno,
+      p.apellidoMaterno,
+      p.correo,
+      p.telefono
+    ].filter(Boolean).join(' ').toLowerCase();
 
-    return coincideBusqueda && coincideEstatus && coincideSoloActivos;
-  });
+    // 4. REGLA: Todas las palabras buscadas deben existir dentro de la info del proveedor
+    // No importa el orden, ni si hay palabras entre medio (como el segundo nombre)
+    return palabras.every(palabra => infoProveedor.includes(palabra));
+  })();
 
+  // 5. Filtros de Estatus (Select)
+  const coincideEstatus =
+    filtroEstatus === "TODOS" ||
+    (filtroEstatus === "ACTIVO" && p.activo) ||
+    (filtroEstatus === "INACTIVO" && !p.activo);
+
+  // 6. Filtro de Switch (Solo activos)
+  const coincideSoloActivos = !soloActivos || p.activo;
+
+  // El proveedor debe cumplir las 3 condiciones
+  return pasaFiltroTexto && coincideEstatus && coincideSoloActivos;
+});
+  
   return (
     <>
       <Toast

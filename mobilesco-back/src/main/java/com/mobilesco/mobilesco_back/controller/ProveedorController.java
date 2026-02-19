@@ -2,7 +2,7 @@ package com.mobilesco.mobilesco_back.controller;
 
 import java.util.List;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -21,7 +21,6 @@ import com.mobilesco.mobilesco_back.dto.proveedor.ProveedorUpdateDTO;
 import com.mobilesco.mobilesco_back.services.ProveedorService;
 
 import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 
@@ -30,93 +29,104 @@ import jakarta.validation.Valid;
 @RequestMapping(ApiPaths.PROVEEDORES)
 public class ProveedorController {
 
+    private final ProveedorService proveedorService;
 
-    @Autowired
-    private ProveedorService proveedorService;
+    public ProveedorController(ProveedorService proveedorService) {
+        this.proveedorService = proveedorService;
+    }
 
-    // GET /proveedor?activo=true&nombre=...&contacto=...
+    // =====================================================
+    // 🔹 LISTAR
+    // =====================================================
+
     @GetMapping
-    @Operation(
-        summary = "Listar proveedores",
-        description = "Devuelve proveedores. Puedes filtrar por activo, nombre o contacto."
-    )
-    public List<ProveedorResponseDTO> listar(
-        
-        @Parameter(description = "Filtra por estado (true=activos, false=inactivos)", example = "true")
-        @RequestParam(required = false) Boolean activo,
-
-        @Parameter(description = "Busca por nombre (contiene, ignora mayúsculas)", example = "prove")
-        @RequestParam(required = false) String nombre
+    @Operation(summary = "Listar proveedores")
+    public ResponseEntity<List<ProveedorResponseDTO>> listar(
+            @RequestParam(required = false) Boolean activo,
+            @RequestParam(required = false) String nombre
     ) {
+
         boolean tieneNombre = (nombre != null && !nombre.isBlank());
 
         if (activo != null && tieneNombre) {
-            return proveedorService.buscarPorActivoYNombre(activo, nombre);
+            return ResponseEntity.ok(
+                    proveedorService.buscarPorActivoYNombre(activo, nombre)
+            );
         }
+
         if (activo != null) {
-            return proveedorService.buscarPorActivo(activo);
+            return ResponseEntity.ok(
+                    proveedorService.buscarPorActivo(activo)
+            );
         }
+
         if (tieneNombre) {
-            return proveedorService.buscarPorNombre(nombre);
+            return ResponseEntity.ok(
+                    proveedorService.buscarPorNombre(nombre)
+            );
         }
-       
 
-        return proveedorService.obtenerTodos();
+        return ResponseEntity.ok(
+                proveedorService.obtenerTodos()
+        );
     }
 
-    // GET /proveedor/{id}
-    @Operation(summary = "Obtener proveedor por ID", description = "Devuelve un proveedor si existe.")
+    // =====================================================
+    // 🔹 OBTENER POR ID
+    // =====================================================
+
     @GetMapping("/{id}")
+    @Operation(summary = "Obtener proveedor por ID")
     public ResponseEntity<ProveedorResponseDTO> obtenerPorId(@PathVariable Long id) {
-        return proveedorService.obtenerPorId(id)
-                .map(ResponseEntity::ok)
-                .orElseGet(() -> ResponseEntity.notFound().build());
+
+        ProveedorResponseDTO proveedor = proveedorService.obtenerPorId(id);
+
+        return ResponseEntity.ok(proveedor);
     }
 
-    // POST /proveedor
-    @Operation(summary = "Crear proveedor", description = "Crea un proveedor. Por defecto se crea como activo.")
+    // =====================================================
+    // 🔹 CREAR
+    // =====================================================
+
     @PostMapping
-    public ProveedorResponseDTO crear(@Valid @RequestBody ProveedorCreateDTO dto) {
-        return proveedorService.crear(dto);
+    public ResponseEntity<ProveedorResponseDTO> crear(
+            @Valid @RequestBody ProveedorCreateDTO dto) {
+
+        ProveedorResponseDTO creado = proveedorService.crear(dto);
+
+        return ResponseEntity
+                .status(HttpStatus.CREATED)
+                .body(creado);
     }
 
-    // PUT /proveedor/{id}
-    @Operation(summary = "Actualizar proveedor", description = "Actualiza los datos del proveedor por ID.")
+
+    // =====================================================
+    // 🔹 ACTUALIZAR
+    // =====================================================
+
     @PutMapping("/{id}")
+    @Operation(summary = "Actualizar proveedor")
     public ResponseEntity<ProveedorResponseDTO> actualizar(
             @PathVariable Long id,
             @Valid @RequestBody ProveedorUpdateDTO dto
     ) {
-        return proveedorService.actualizar(id, dto)
-                .map(ResponseEntity::ok)
-                .orElseGet(() -> ResponseEntity.notFound().build());
+
+        ProveedorResponseDTO actualizado =
+                proveedorService.actualizar(id, dto);
+
+        return ResponseEntity.ok(actualizado);
     }
 
-    // DELETE /proveedor/{id}
-    @Operation(summary = "Eliminar proveedor", description = "Elimina físicamente el proveedor de la base de datos.")
+    // =====================================================
+    // 🔹 ELIMINAR
+    // =====================================================
+
     @DeleteMapping("/{id}")
+    @Operation(summary = "Eliminar proveedor")
     public ResponseEntity<Void> eliminar(@PathVariable Long id) {
-        boolean ok = proveedorService.eliminar(id);
-        return ok ? ResponseEntity.noContent().build()
-                  : ResponseEntity.notFound().build();
+
+        proveedorService.eliminar(id);
+
+        return ResponseEntity.noContent().build();
     }
-
-    /* Futuro: Si cambia de la logica del negocio a soft delete, se pueden agregar estos endpoints para activar/desactivar sin eliminar de la BD.
-
-        @Operation(summary = "Desactivar proveedor", description = "Soft delete: marca activo=false sin borrar de la BD.")
-        @PatchMapping("/{id}/desactivar")
-        public ResponseEntity<Void> desactivar(@PathVariable Long id) {
-            boolean ok = proveedorService.desactivar(id);
-            return ok ? ResponseEntity.noContent().build()
-                    : ResponseEntity.notFound().build();
-        }
-
-        @Operation(summary = "Activar proveedor", description = "Reactiva un proveedor marcando activo=true.")
-        @PatchMapping("/{id}/activar")
-        public ResponseEntity<Void> activar(@PathVariable Long id) {
-            boolean ok = proveedorService.activar(id);
-            return ok ? ResponseEntity.noContent().build()
-                    : ResponseEntity.notFound().build();
-        }
-    */
 }

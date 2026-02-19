@@ -20,6 +20,7 @@ public interface ProveedorRepository extends JpaRepository<ProveedorModel, Long>
 
      Optional<ProveedorModel> findByRazonSocialIgnoreCase(String razonSocial);
 
+    
     // (Opcional) si luego quieres activo+contacto:
     // List<ProveedorModel> findByActivoAndContactoContainingIgnoreCase(Boolean activo, String contacto);
 }

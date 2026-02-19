@@ -44,14 +44,31 @@ export default function ProveedorForm({ proveedorId }) {
   }, [proveedorId]);
 
   function handleChange(e) {
-    const { name, value, type, checked } = e.target;
-    setFormData({ ...formData, [name]: type === "checkbox" ? checked : value });
+  const { name, value, type, checked } = e.target;
+
+  // Actualizar el formulario
+  setFormData(prev => ({
+    ...prev,
+    [name]: type === "checkbox" ? checked : value
+  }));
+
+  // 🔥 Si ese campo tenía error, lo eliminamos al escribir
+  if (erroresBackend[name]) {
+    setErroresBackend(prev => {
+      const copia = { ...prev };
+      delete copia[name];
+      return copia;
+    });
   }
+}
+
 
   async function handleSubmit(e) {
     e.preventDefault();
+
     try {
       setErroresBackend({});
+
       if (esEdicion) {
         await actualizarProveedor(proveedorId, formData);
         setToastMessage("¡Proveedor actualizado con éxito!");
@@ -59,12 +76,20 @@ export default function ProveedorForm({ proveedorId }) {
         await crearProveedor(formData);
         setToastMessage("¡Proveedor registrado con éxito!");
       }
+
       setToastType("success");
       setTimeout(() => navigate("/proveedores"), 1500);
+
     } catch (error) {
-      if (typeof error === "object") setErroresBackend(error);
-      setToastType("danger");
-      setToastMessage("Error al guardar los datos");
+
+      console.log("ERROR COMPLETO:", error);
+
+      if (error.errors) {
+        setErroresBackend(error.errors);
+      } else {
+        setToastType("danger");
+        setToastMessage(error.message || "Error al guardar los datos");
+      }
     }
   }
 
