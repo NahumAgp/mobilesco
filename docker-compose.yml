@@ -10,6 +10,7 @@ services:
       - mysql_data:/var/lib/mysql
     networks:
       - mobilesco_network
+    restart: unless-stopped
 
   backend:
     build: ./mobilesco-back
@@ -22,18 +23,28 @@ services:
       - db
     networks:
       - mobilesco_network
+    restart: unless-stopped
 
   frontend:
     build: ./mobilesco-front
     ports:
       - "80:80"
+      - "443:443"  # IMPORTANTE: Puerto para HTTPS
+    volumes:
+      # Certificados SSL (desde el servidor)
+      - /etc/letsencrypt/live/mobilesco.cloud/fullchain.pem:/etc/nginx/ssl/fullchain.pem:ro
+      - /etc/letsencrypt/live/mobilesco.cloud/privkey.pem:/etc/nginx/ssl/privkey.pem:ro
+      # Configuración de nginx (el archivo que creamos)
+      - ./nginx-ssl.conf:/etc/nginx/conf.d/default.conf:ro
     depends_on:
       - backend
     networks:
       - mobilesco_network
+    restart: unless-stopped
 
 networks:
   mobilesco_network:
+    driver: bridge
 
 volumes:
   mysql_data:
