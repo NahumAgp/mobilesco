@@ -5,22 +5,27 @@
 export default function ProveedoresTable({ data, onEditar, onEliminar }) {
 
   return (
-    <div className="card">
+      <div className="card">
 
-      {/* 🔥 Scroll horizontal */}
       <div
-  className="table-responsive"
-  style={{
-    maxHeight: "700px",
-    overflowY: "auto"
-  }}
->
+        className="table-responsive"
+        style={{
+          height: "calc(100vh - 350px)",
+          overflowY: "auto"
+        }}
+      >
 
+        <table className="table table-hover mb-0">
 
-        <table className="table table-hover mb-0" style={{ minWidth: "1400px" }}>
-
-          {/* ================== CABECERA ================== */}
-          <thead className="table-light">
+          <thead
+            className="table-light"
+            style={{
+              position: "sticky",
+              top: 0,
+              zIndex: 2,
+              backgroundColor: "white"
+            }}
+          >
             <tr>
               <th>Id</th>
               <th>Razón Social</th>
