@@ -1,74 +1,39 @@
-
 services:
-  # MySQL database container
   db:
-    container_name: mobilesco_db
     image: mysql:8.0
     environment:
       MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
       MYSQL_DATABASE: ${MYSQL_DATABASE}
       MYSQL_USER: ${MYSQL_USER}
       MYSQL_PASSWORD: ${MYSQL_PASSWORD}
-    ports:
-      - "3307:3306"  # Puertos: local:contenedor
     volumes:
-      - mysql_data:/var/lib/mysql  # Persistir los datos de MySQL
+      - mysql_data:/var/lib/mysql
     networks:
-      - backend_network
-    healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
-      interval: 30s
-      retries: 3
-      timeout: 5s
+      - mobilesco_network
 
-  # Backend (Spring Boot application)
   backend:
-    container_name: mobilesco_backend
-    build: ./mobilesco-back  # Carpeta donde se encuentra el backend
+    build: ./mobilesco-back
     environment:
       SPRING_PROFILES_ACTIVE: prod
       SPRING_DATASOURCE_URL: ${SPRING_DATASOURCE_URL}
       SPRING_DATASOURCE_USERNAME: ${SPRING_DATASOURCE_USERNAME}
       SPRING_DATASOURCE_PASSWORD: ${SPRING_DATASOURCE_PASSWORD}
-    ports:
-      - "8081:8081"  # Exponer el backend en el puerto 8081
     depends_on:
       - db
     networks:
-      - backend_network
-    volumes:
-      - backend_data:/app/data  # Persistir los datos del backend si es necesario
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8081/actuator/health"]
-      interval: 30s
-      retries: 3
-      timeout: 5s
+      - mobilesco_network
 
-  # Frontend (React application)
   frontend:
-    container_name: mobilesco_frontend
-    build: ./mobilesco-front  # Carpeta donde se encuentra el frontend
+    build: ./mobilesco-front
     ports:
-      - "3000:3000"  # Exponer el frontend en el puerto 3000
+      - "80:80"
     depends_on:
       - backend
     networks:
-      - frontend_network
-    volumes:
-      - frontend_data:/app/data  # Persistir los datos del frontend si es necesario
-    environment:
-      REACT_APP_API_URL: "http://backend:8081"  # API URL para el frontend
+      - mobilesco_network
 
-# Definir las redes para que los servicios se puedan comunicar entre sí
 networks:
-  backend_network:
-  frontend_network:
+  mobilesco_network:
 
-# Volúmenes persistentes
 volumes:
-  mysql_data:   # Volumen para la base de datos MySQL
-    driver: local
-  backend_data:  # Volumen para el backend
-    driver: local
-  frontend_data:  # Volumen para el frontend
-    driver: local
+  mysql_data:
