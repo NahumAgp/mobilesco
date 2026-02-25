@@ -30,7 +30,7 @@ export default function ProveedoresTable({ data, onEditar, onEliminar }) {
               <th>Id</th>
               <th>Razón Social</th>
               <th>Contacto</th>
-              <th>Dirección</th>
+              <th>Tipo de Insumo</th>
               <th>Correo</th>
               <th>Teléfono</th>
               <th>Estado</th>
@@ -58,9 +58,7 @@ export default function ProveedoresTable({ data, onEditar, onEliminar }) {
                     {proveedor.nombre} {proveedor.apellidoPaterno} {proveedor.apellidoMaterno}
                   </td>
                   <td>
-                    {proveedor.calle} #{proveedor.numeroExterior}/{proveedor.numeroInterior},
-                    {" "} {proveedor.colonia}. CP {proveedor.codigoPostal},
-                    {" "} {proveedor.ciudad}, {proveedor.estado}
+                    {proveedor.tipoInsumo}
                   </td>
                   <td>{proveedor.correo}</td>
                   <td>{proveedor.telefono}</td>

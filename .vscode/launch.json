@@ -8,7 +8,7 @@
             "mainClass": "com.mobilesco.mobilesco_back.MobilescoBackApplication",
             "projectName": "mobilesco-back",
             "args": "",
-            "envFile": "${workspaceFolder}/.env"
+            //"envFile": "${workspaceFolder}/.env"
         }
     ]
 }

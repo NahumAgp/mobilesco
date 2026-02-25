@@ -68,7 +68,8 @@ export default function ProveedoresPage() {
       p.apellidoPaterno,
       p.apellidoMaterno,
       p.correo,
-      p.telefono
+      p.telefono,
+      p.tipoInsumo
     ].filter(Boolean).join(' ').toLowerCase();
 
     // 4. REGLA: Todas las palabras buscadas deben existir dentro de la info del proveedor

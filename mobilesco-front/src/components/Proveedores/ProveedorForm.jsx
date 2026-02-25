@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { obtenerProveedorPorId, crearProveedor, actualizarProveedor } from "../../services/proveedores.js";
+import { obtenerProveedorPorId, crearProveedor, actualizarProveedor, obtenerTiposInsumo } from "../../services/proveedores.js";
 import Toast from "../ui/Toast.jsx";
 
 export default function ProveedorForm({ proveedorId }) {
@@ -18,6 +18,7 @@ export default function ProveedorForm({ proveedorId }) {
     nombre: "",
     apellidoPaterno: "",
     apellidoMaterno: "",
+    tipoInsumo: "",
     estado: "",
     ciudad: "",
     colonia: "",
@@ -29,8 +30,20 @@ export default function ProveedorForm({ proveedorId }) {
     correo: "",
     activo: true
   });
-
+  const [tiposInsumo, setTiposInsumo] = useState([]);
+// 👇 NUEVO: Función para cargar los tipos de insumo
+const cargarTiposInsumo = async () => {
+  try {
+    // Esta función la tienes que crear en tu servicio de proveedores
+    const tipos = await obtenerTiposInsumo();
+    setTiposInsumo(tipos);
+  } catch (error) {
+    console.error("Error cargando tipos de insumo:", error);
+  }
+};
   useEffect(() => {
+    cargarTiposInsumo();
+
     const cargar = async () => {
       if (!proveedorId) return;
       try {
@@ -124,6 +137,29 @@ export default function ProveedorForm({ proveedorId }) {
                 <label className="form-label fw-semibold">RFC</label>
                 <input type="text" name="rfc" className={inputClass("rfc")} value={formData.rfc} onChange={handleChange} placeholder="ABC123456XYZ" />
               </div>
+
+              {/* 👇 NUEVO: Campo de tipo de insumo */}
+<div className="col-md-4">
+  <label className="form-label fw-semibold">
+    <i className="bi bi-tags me-1"></i>
+    Tipo de Insumo <span className="text-danger">*</span>
+  </label>
+  <select 
+    name="tipoInsumo" 
+    className={`form-select ${erroresBackend.tipoInsumo ? 'is-invalid' : 'border-soft'}`}
+    value={formData.tipoInsumo || ""} 
+    onChange={handleChange}
+    required
+  >
+    <option value="">Selecciona un tipo...</option>
+    {tiposInsumo.map(tipo => (
+      <option key={tipo} value={tipo}>
+        {tipo.replace(/_/g, ' ')} {/* Convierte HERRAJES a "HERRAJES" (luego lo mejoramos) */}
+      </option>
+    ))}
+  </select>
+  <div className="invalid-feedback">{erroresBackend.tipoInsumo}</div>
+</div>
               
               <div className="col-md-4">
                 <label className="form-label fw-semibold">Nombre del Contacto</label>
