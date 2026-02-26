@@ -19,9 +19,9 @@ public interface ProveedorRepository extends JpaRepository<ProveedorModel, Long>
 
     List<ProveedorModel> findByActivoAndNombreContainingIgnoreCase(Boolean activo, String nombre);
 
-     Optional<ProveedorModel> findByRazonSocialIgnoreCase(String razonSocial);
+    Optional<ProveedorModel> findByRazonSocialIgnoreCase(String razonSocial);
 
-     List<ProveedorModel> findByTipoInsumo(TipoInsumo tipoInsumo);
+    List<ProveedorModel> findByTipoInsumo(TipoInsumo tipoInsumo);
      
 
      
