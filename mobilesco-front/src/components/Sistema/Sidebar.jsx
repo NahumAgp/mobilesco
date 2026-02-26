@@ -115,19 +115,42 @@ export default function Sidebar() {
           Insumos
         </NavLink> 
 
-         <NavLink //Unidad Medida
-          to="/unidadMedida"
-          style={({ isActive }) => ({
-            color: "#fff",
-            textDecoration: "none",
-            padding: "10px 12px",
-            borderRadius: 10,
-            background: isActive ? "#1b7f72" : "transparent",
-          })}
-        >
-           <i className="bi bi-rulers me-2"> </i>
-          Unidades de Medida
-        </NavLink> 
+         <div>
+  {/* BOTÓN PADRE */}
+  <button
+    className="sidebar-parent"
+    data-bs-toggle="collapse"
+    data-bs-target="#menuUnidadesMedida" 
+  >
+    <div className="sidebar-parent-content">
+      <i className="bi bi-rulers me-2"></i>    {/* 👈 Icono diferente */}
+      <span>Unidades de Medida</span>          {/* 👈 Texto diferente */}
+    </div>
+
+    <i className="bi bi-chevron-down sidebar-chevron"></i>
+  </button>
+
+  {/* SUBMENÚ */}
+  <div className="collapse sidebar-submenu" id="menuUnidadesMedida">  {/* 👈 ID diferente */}
+
+    <NavLink
+      to="/unidades-medida"                    
+      className="sidebar-link"
+    >
+      <i className="bi bi-list-ul me-2"></i>
+      Lista Unidades                            {/* 👈 Texto diferente */}
+    </NavLink>
+
+    <NavLink
+      to="/unidades-medida/nuevo"               
+      className="sidebar-link"
+    >
+      <i className="bi bi-plus-circle me-2"></i>
+      Nueva Unidad                               {/* 👈 Texto diferente */}
+    </NavLink>
+
+  </div>
+</div>
 
          <NavLink //Nueva Cotizacion
           to="/nuevaCotizacion"

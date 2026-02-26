@@ -51,6 +51,18 @@ public class UnidadMedidaController {
         return unidadMedidaService.crear(dto);
     }
 
+    //Obtener Unidad de medidad por id
+    @GetMapping("/{id}")
+    @Operation (summary = "Obtener Unidad Medida por ID")
+    public ResponseEntity<UnidadMedidaResponseDTO> obtenerPorId(@PathVariable Long id) {
+
+        UnidadMedidaResponseDTO unidadaMedida = unidadMedidaService.obtenerPorId(id);
+
+        return ResponseEntity.ok(unidadaMedida);
+    }
+    
+    
+
     //ACTUALIZAR una unidad de medida existente
     //PUT /unidadMedida/{id}
     @Operation(summary = "Actualizar Unidad de Medida", description = "Actualiza una Unidad de Medida existente")

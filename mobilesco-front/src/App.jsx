@@ -8,6 +8,8 @@ import NuevaCotizacion from "./pages/NuevaCotizacion.jsx";
 import Cotizacion from "./pages/Cotizaciones.jsx";
 import ProveedoresPage from "./pages/Proveedores/ProveedoresPage.jsx";
 import ProveedorFormPage from "./pages/Proveedores/ProveedorFormPage.jsx";
+import UnidadesMedidaPage from "./pages/UnidadMedidas/UnidadMedidaPage.jsx";
+import UnidadMedidaFormPage from "./pages/UnidadMedidas/UnidadMedidaFormPage.jsx";
 
 
 export default function App() {
@@ -24,9 +26,11 @@ export default function App() {
         <Route path="/nuevaCotizacion" element={<NuevaCotizacion />}/>
         <Route path="/cotizaciones" element= {<Cotizacion />} />
         <Route path="/proveedores" element={<ProveedoresPage />} />
-        <Route path="/proveedores/nuevo" element={<ProveedorFormPage />} />
-        <Route path="/proveedores/:id" element={<ProveedorFormPage />} />
-
+          <Route path="/proveedores/nuevo" element={<ProveedorFormPage />} />
+          <Route path="/proveedores/:id" element={<ProveedorFormPage />} />
+        <Route path="/unidades-medida" element={<UnidadesMedidaPage />} />
+          <Route path="/unidades-medida/nuevo" element={<UnidadMedidaFormPage />} />
+          <Route path="/unidades-medida/:id" element={<UnidadMedidaFormPage />} />
 
         {/* opcional: 404 */}
         <Route path="*" element={<Navigate to="/tablero" replace />} />

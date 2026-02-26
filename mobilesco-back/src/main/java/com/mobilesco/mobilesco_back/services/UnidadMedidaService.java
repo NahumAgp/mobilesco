@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 import com.mobilesco.mobilesco_back.dto.unidadMedida.UnidadMedidaCreateDTO;
 import com.mobilesco.mobilesco_back.dto.unidadMedida.UnidadMedidaResponseDTO;
 import com.mobilesco.mobilesco_back.dto.unidadMedida.UnidadMedidaUpdateDTO;
+import com.mobilesco.mobilesco_back.exceptions.NotFoundException;
 import com.mobilesco.mobilesco_back.models.UnidadMedidaModel;
 import com.mobilesco.mobilesco_back.repositories.UnidadMedidaRepository;
 
@@ -50,8 +51,16 @@ public class UnidadMedidaService {
 
     // --------- READ ---------
     public List<UnidadMedidaResponseDTO> obtenerTodos() {
-        List<UnidadMedidaModel> unidades = unidadMedidaRepository.findAll();
-        return mapToResponseDTOList(unidades);
+        return mapToResponseDTOList(unidadMedidaRepository.findAll());
+    }
+
+    public UnidadMedidaResponseDTO obtenerPorId(Long id) {
+
+        UnidadMedidaModel UnidadMedida = unidadMedidaRepository.findById(id)
+                .orElseThrow(() ->
+                        new NotFoundException("Unidad de Medida no encontrada"));
+
+        return mapToResponseDTO(UnidadMedida);
     }
 
     //----------UPDATE----------
