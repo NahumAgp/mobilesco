@@ -8,11 +8,11 @@ import org.springframework.stereotype.Service;
 import com.mobilesco.mobilesco_back.dto.proveedor.ProveedorCreateDTO;
 import com.mobilesco.mobilesco_back.dto.proveedor.ProveedorResponseDTO;
 import com.mobilesco.mobilesco_back.dto.proveedor.ProveedorUpdateDTO;
+import com.mobilesco.mobilesco_back.enums.TipoInsumo;
 import com.mobilesco.mobilesco_back.exceptions.BadRequestException;
 import com.mobilesco.mobilesco_back.exceptions.NotFoundException;
 import com.mobilesco.mobilesco_back.models.ProveedorModel;
 import com.mobilesco.mobilesco_back.repositories.ProveedorRepository;
-
 
 @Service
 public class ProveedorService {
@@ -22,7 +22,6 @@ public class ProveedorService {
     public ProveedorService(ProveedorRepository proveedorRepository) {
         this.proveedorRepository = proveedorRepository;
     }
-
 
     // =====================================================
     // 🔹 MAPPER
@@ -50,6 +49,8 @@ public class ProveedorService {
         dto.setNumeroExterior(proveedor.getNumeroExterior());
         dto.setNumeroInterior(proveedor.getNumeroInterior());
         dto.setCodigoPostal(proveedor.getCodigoPostal());
+
+        dto.setTipoInsumo(proveedor.getTipoInsumo());
 
         // CONTACTO
         dto.setTelefono(proveedor.getTelefono());
@@ -104,6 +105,7 @@ public class ProveedorService {
         proveedor.setNumeroExterior(dto.getNumeroExterior());
         proveedor.setNumeroInterior(dto.getNumeroInterior());
         proveedor.setCodigoPostal(dto.getCodigoPostal());
+        proveedor.setTipoInsumo(dto.getTipoInsumo());
 
         // CONTACTO
         proveedor.setTelefono(dto.getTelefono());
@@ -118,12 +120,16 @@ public class ProveedorService {
     }
 
     // =====================================================
-    // 🔹 READ
+    // 🔹 READ - Todos
     // =====================================================
 
     public List<ProveedorResponseDTO> obtenerTodos() {
         return mapToResponseDTOList(proveedorRepository.findAll());
     }
+
+    // =====================================================
+    // 🔹 READ - Por ID
+    // =====================================================
 
     public ProveedorResponseDTO obtenerPorId(Long id) {
 
@@ -134,19 +140,48 @@ public class ProveedorService {
         return mapToResponseDTO(proveedor);
     }
 
+    // =====================================================
+    // 🔹 READ - Por tipo de insumo (NUEVO)
+    // =====================================================
+    
+    public List<ProveedorResponseDTO> getProveedoresPorTipo(TipoInsumo tipo) {
+        List<ProveedorModel> proveedores = proveedorRepository.findByTipoInsumo(tipo);
+        return mapToResponseDTOList(proveedores);
+    }
+
+    // =====================================================
+    // 🔹 READ - Por activo
+    // =====================================================
+
     public List<ProveedorResponseDTO> buscarPorActivo(Boolean activo) {
         return mapToResponseDTOList(
                 proveedorRepository.findByActivo(activo));
     }
+
+    // =====================================================
+    // 🔹 READ - Por nombre
+    // =====================================================
 
     public List<ProveedorResponseDTO> buscarPorNombre(String nombre) {
         return mapToResponseDTOList(
                 proveedorRepository.findByNombreContainingIgnoreCase(nombre));
     }
 
+    // =====================================================
+    // 🔹 READ - Por activo y nombre
+    // =====================================================
+
     public List<ProveedorResponseDTO> buscarPorActivoYNombre(Boolean activo, String nombre) {
         return mapToResponseDTOList(
                 proveedorRepository.findByActivoAndNombreContainingIgnoreCase(activo, nombre));
+    }
+
+    // =====================================================
+    // 🔹 Tipos de insumo (UTILIDAD)
+    // =====================================================
+
+    public TipoInsumo[] getTodosLosTipos() {
+        return TipoInsumo.values();
     }
 
     // =====================================================
@@ -187,6 +222,8 @@ public class ProveedorService {
         existente.setNumeroInterior(dto.getNumeroInterior());
         existente.setCodigoPostal(dto.getCodigoPostal());
 
+        existente.setTipoInsumo(dto.getTipoInsumo());
+
         // CONTACTO
         existente.setTelefono(dto.getTelefono());
         existente.setCorreo(dto.getCorreo());
@@ -211,6 +248,4 @@ public class ProveedorService {
 
         proveedorRepository.deleteById(id);
     }
-
-    
 }

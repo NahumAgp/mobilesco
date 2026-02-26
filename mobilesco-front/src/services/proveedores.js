@@ -106,3 +106,12 @@ export function eliminarProveedor(id) {
     method: "DELETE"
   });
 }
+
+// Obtener todos los tipos de insumo
+export async function obtenerTiposInsumo() {
+  const response = await fetch(`${API_URL}/tipos-insumo`);
+  if (!response.ok) {
+    throw new Error('Error al cargar tipos de insumo');
+  }
+  return await response.json();
+}

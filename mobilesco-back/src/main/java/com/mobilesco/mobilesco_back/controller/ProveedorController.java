@@ -18,6 +18,7 @@ import com.mobilesco.mobilesco_back.config.ApiPaths;
 import com.mobilesco.mobilesco_back.dto.proveedor.ProveedorCreateDTO;
 import com.mobilesco.mobilesco_back.dto.proveedor.ProveedorResponseDTO;
 import com.mobilesco.mobilesco_back.dto.proveedor.ProveedorUpdateDTO;
+import com.mobilesco.mobilesco_back.enums.TipoInsumo;
 import com.mobilesco.mobilesco_back.services.ProveedorService;
 
 import io.swagger.v3.oas.annotations.Operation;
@@ -27,9 +28,9 @@ import jakarta.validation.Valid;
 @Tag(name = "Proveedor", description = "CRUD y gestión de proveedores")
 @RestController
 @RequestMapping(ApiPaths.PROVEEDORES)
-public class ProveedorController {
+public class ProveedorController {  // ✅ Nombre correcto con 'e'
 
-    private final ProveedorService proveedorService;
+    private final ProveedorService proveedorService;  // ✅ Nombre correcto con 'e'
 
     public ProveedorController(ProveedorService proveedorService) {
         this.proveedorService = proveedorService;
@@ -99,7 +100,6 @@ public class ProveedorController {
                 .body(creado);
     }
 
-
     // =====================================================
     // 🔹 ACTUALIZAR
     // =====================================================
@@ -125,8 +125,30 @@ public class ProveedorController {
     @Operation(summary = "Eliminar proveedor")
     public ResponseEntity<Void> eliminar(@PathVariable Long id) {
 
-        proveedorService.eliminar(id);
+        proveedorService.eliminar(id);  // ✅ Nombre correcto
 
         return ResponseEntity.noContent().build();
+    }
+
+    // =====================================================
+    // 🔹 TIPOS DE INSUMO (UTILIDAD)
+    // =====================================================
+
+    @GetMapping("/tipos-insumo")
+    @Operation(summary = "Obtener todos los tipos de insumo")
+    public ResponseEntity<TipoInsumo[]> getTiposInsumo() {
+        TipoInsumo[] tipos = proveedorService.getTodosLosTipos();  // ✅ Nombre correcto
+        return ResponseEntity.ok(tipos);
+    }
+
+    // =====================================================
+    // 🔹 BUSCAR POR TIPO DE INSUMO (CORREGIDO)
+    // =====================================================
+
+    @GetMapping("/por-tipo/{tipo}")
+    @Operation(summary = "Buscar proveedores por tipo de insumo")
+    public ResponseEntity<List<ProveedorResponseDTO>> getProveedoresPorTipo(@PathVariable TipoInsumo tipo) {
+        List<ProveedorResponseDTO> proveedores = proveedorService.getProveedoresPorTipo(tipo);  // ✅ Método corregido
+        return ResponseEntity.ok(proveedores);
     }
 }

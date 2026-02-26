@@ -2,8 +2,12 @@ package com.mobilesco.mobilesco_back.models;
 
 import java.time.LocalDate;
 
+import com.mobilesco.mobilesco_back.enums.TipoInsumo;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -32,6 +36,9 @@ public class ProveedorModel {
     private String numeroExterior;
     private String numeroInterior;
     private String codigoPostal;
+
+    @Enumerated(EnumType.STRING)
+    private TipoInsumo tipoInsumo;
 
     // CONTACTO
     private String telefono;
@@ -200,4 +207,13 @@ public class ProveedorModel {
         this.activo = activo;
     }
 
+    public TipoInsumo getTipoInsumo() {
+        return tipoInsumo;
+    }
+
+    public void setTipoInsumo(TipoInsumo tipoInsumo) {
+        this.tipoInsumo = tipoInsumo;
+    }
+
+ 
 }
