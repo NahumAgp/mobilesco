@@ -15,6 +15,7 @@ public final class ApiPaths {
     // 🔹 DOMINIOS
     // =============================
     public static final String AUTH = API_VERSION + "/auth";
+    public static final String EMPLEADOS = API_VERSION + "/empleados";
     public static final String PROVEEDORES = API_VERSION + "/proveedores";
     public static final String UNIDADES_MEDIDA = API_VERSION + "/unidades-medida";
     public static final String PRODUCTOS = API_VERSION + "/productos";

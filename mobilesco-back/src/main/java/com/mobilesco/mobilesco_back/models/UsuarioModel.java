@@ -13,6 +13,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.JoinTable;
 import jakarta.persistence.ManyToMany;
+import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 
 @Entity
@@ -45,6 +46,18 @@ public class UsuarioModel {
         inverseJoinColumns = @JoinColumn(name = "role_id")
     )
     private Set<RolModel> roles = new HashSet<>();
+
+    @OneToOne(fetch = FetchType.LAZY, optional = true)
+    @JoinColumn(name = "empleado_id", unique = true)
+    private EmpleadoModel empleado;
+
+    public EmpleadoModel getEmpleado() {
+        return empleado;
+    }
+
+    public void setEmpleado(EmpleadoModel empleado) {
+        this.empleado = empleado;
+    }
 
     // ====== getters/setters ======
     public Long getId() { return id; }
