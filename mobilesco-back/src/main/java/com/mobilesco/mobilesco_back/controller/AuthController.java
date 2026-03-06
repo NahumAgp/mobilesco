@@ -2,8 +2,6 @@ package com.mobilesco.mobilesco_back.controller;
 
 
 
-import java.util.Map;
-
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -16,6 +14,9 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.mobilesco.mobilesco_back.auth.RefreshTokenService;
 import com.mobilesco.mobilesco_back.config.ApiPaths;
+import com.mobilesco.mobilesco_back.dto.auth.MeResponseDTO;
+import com.mobilesco.mobilesco_back.exceptions.NotFoundException;
+import com.mobilesco.mobilesco_back.models.UsuarioModel;
 import com.mobilesco.mobilesco_back.repositories.UsuarioRepository;
 import com.mobilesco.mobilesco_back.security.JwtService;
 
@@ -81,11 +82,34 @@ public class AuthController {
         refreshTokenService.revoke(request.refreshToken());
         return ResponseEntity.noContent().build();
     }
+   
     @GetMapping("/me")
-    public Map<String, Object> me(Authentication authentication) {
-        return Map.of(
-                "principal", authentication.getPrincipal(),
-                "roles", authentication.getAuthorities()
+    public ResponseEntity<MeResponseDTO> me(Authentication auth) {
+
+        String email = auth.getName();
+
+        UsuarioModel usuario = userRepository.findOneByEmail(email)
+                .orElseThrow(() -> new NotFoundException("Usuario no encontrado"));
+
+        MeResponseDTO dto = new MeResponseDTO();
+        dto.setIdUsuario(usuario.getId());
+        dto.setCorreo(usuario.getEmail());
+
+        dto.setRoles(
+                usuario.getRoles().stream()
+                        .map(r -> r.getName())
+                        .toList()
         );
+
+        if (usuario.getEmpleado() != null) {
+            var emp = usuario.getEmpleado();
+            dto.setIdEmpleado(emp.getId());
+            dto.setNombre(emp.getNombre());
+            dto.setApellidoPaterno(emp.getApellidoPaterno());
+            dto.setApellidoMaterno(emp.getApellidoMaterno());
+            dto.setFotoUrl(emp.getFotoUrl());
+        }
+
+        return ResponseEntity.ok(dto);
     }
 }

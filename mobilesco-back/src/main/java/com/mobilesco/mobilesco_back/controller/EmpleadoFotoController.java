@@ -42,7 +42,7 @@ public class EmpleadoFotoController {
     @Operation(summary = "Subir/reemplazar foto de un empleado (ADMIN)")
     public ResponseEntity<?> subirFotoEmpleado(
             @PathVariable Long id,
-            @RequestParam(value = "archivo", required = false) MultipartFile archivo
+            @RequestParam("archivo") MultipartFile archivo
     ) throws IOException {
 
         EmpleadoModel empleado = empleadoRepository.findById(id)

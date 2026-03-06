@@ -1,117 +1,39 @@
-import { API_BASE_URL } from "../config/apiConfig";
+// src/services/proveedoresService.js
+import request from "./api";
 import { API_PATHS } from "../config/apiPaths";
-// ========================================
-// URL BASE DEL BACKEND
-// ========================================
-
-const API_URL = `${API_BASE_URL}${API_PATHS.PROVEEDORES}`;
-
 
 // ========================================
-// FUNCIÓN GENERAL PARA HACER PETICIONES
-// ========================================
-
-async function request(url, options = {}) {
-
-  const response = await fetch(url, {
-    headers: {
-      "Content-Type": "application/json",
-      ...options.headers
-    },
-    ...options
-  });
-
-  // 🔥 Si es 204 No Content, fue exitoso
-  if (response.status === 204) {
-    return null;
-  }
-
-  // 🔥 Si no hay contenido, no intentes parsear
-  const text = await response.text();
-
-  let data = null;
-
-  if (text) {
-    try {
-      data = JSON.parse(text);
-    } catch {
-      data = text;
-    }
-  }
-
-  if (!response.ok) {
-    throw data || { message: "Error en la petición" };
-  }
-
-  return data;
-}
-
-
-
-
-// ========================================
-// OBTENER TODOS LOS PROVEEDORES (GET)
+// PROVEEDORES
 // ========================================
 
 export function obtenerProveedores() {
-  return request(API_URL);
+  return request(API_PATHS.PROVEEDORES);
 }
-
-
-
-// ========================================
-// OBTENER PROVEEDOR POR ID (GET)
-// ========================================
 
 export function obtenerProveedorPorId(id) {
-  return request(`${API_URL}/${id}`);
+  return request(`${API_PATHS.PROVEEDORES}/${id}`);
 }
-
-
-
-// ========================================
-// CREAR PROVEEDOR (POST)
-// ========================================
 
 export function crearProveedor(data) {
-  return request(API_URL, {
+  return request(API_PATHS.PROVEEDORES, {
     method: "POST",
-    body: JSON.stringify(data)
+    body: JSON.stringify(data),
   });
 }
-
-
-
-// ========================================
-// ACTUALIZAR PROVEEDOR (PUT)
-// ========================================
-// 🔥 IMPORTANTE: ahora recibe (id, data)
-// para que funcione con el nuevo formulario
 
 export function actualizarProveedor(id, data) {
-  return request(`${API_URL}/${id}`, {
+  return request(`${API_PATHS.PROVEEDORES}/${id}`, {
     method: "PUT",
-    body: JSON.stringify(data)
+    body: JSON.stringify(data),
   });
 }
-
-
-
-// ========================================
-// ELIMINAR PROVEEDOR (DELETE)
-// ========================================
 
 export function eliminarProveedor(id) {
-  return request(`${API_URL}/${id}`, {
-    method: "DELETE"
+  return request(`${API_PATHS.PROVEEDORES}/${id}`, {
+    method: "DELETE",
   });
 }
 
-// Obtener todos los tipos de insumo
-export async function obtenerTiposInsumo() {
-  const response = await fetch(`${API_URL}/tipos-insumo`);
-  if (!response.ok) {
-    throw new Error('Error al cargar tipos de insumo');
-  }
-  return await response.json();
+export function obtenerTiposInsumo() {
+  return request(`${API_PATHS.PROVEEDORES}/tipos-insumo`);
 }

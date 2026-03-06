@@ -1,38 +1,149 @@
-
 import "./Sidebar.css";
-import { NavLink } from "react-router-dom";
+import { NavLink, useNavigate } from "react-router-dom";
+import { logout, getUser } from "../../services/authService";
+import { useState, useRef, useEffect } from "react";
 
 export default function Sidebar() {
+
+  const navigate = useNavigate();
+  const user = getUser();
+
+  const [openMenu, setOpenMenu] = useState(false);
+  const menuRef = useRef(null);
+
+  const nombre = user?.nombre || "";
+  const apellido = user?.apellidoPaterno || "";
+
+  const rolMap = {
+    ADMIN: "Administrador",
+    EMPLOYEE: "Empleado"
+  };
+
+  const rol = rolMap[user?.roles?.[0]] || user?.roles?.[0] || "";
+
+  const foto = user?.fotoUrl
+    ? `http://localhost:8081${user.fotoUrl}`
+    : null;
+
+  const handleLogout = async () => {
+
+    try {
+      await logout();
+    } catch (e) {
+      console.warn("Error logout:", e);
+    }
+
+    navigate("/login");
+
+  };
+
+  // cerrar dropdown si se hace click fuera
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (menuRef.current && !menuRef.current.contains(event.target)) {
+        setOpenMenu(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
   return (
+
     <aside style={{ width: 260, padding: 16, background: "#244b47", color: "#fff" }}>
-      {/* Perfil */}
-      <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 30 }}>
+
+      {/* PERFIL */}
+      <div
+        ref={menuRef}
+        style={{ position: "relative", marginBottom: 30 }}
+      >
+
         <div
+          onClick={() => setOpenMenu(!openMenu)}
           style={{
-            width: 44,
-            height: 44,
-            borderRadius: "50%",
-            background: "#1b7f72",
             display: "flex",
             alignItems: "center",
-            justifyContent: "center",
-            fontSize: 20,
+            gap: 12,
+            cursor: "pointer"
           }}
         >
-          {/* Icono */}
-          <i className="bi bi-person-fill"></i>
+
+          <div
+            style={{
+              width: 44,
+              height: 44,
+              borderRadius: "50%",
+              background: "#1b7f72",
+              overflow: "hidden",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center"
+            }}
+          >
+
+            {foto ? (
+              <img
+                src={foto}
+                alt="perfil"
+                style={{ width: "100%", height: "100%", objectFit: "cover" }}
+              />
+            ) : (
+              <i className="bi bi-person-fill"></i>
+            )}
+
+          </div>
+
+          <div>
+            <strong>{nombre} {apellido}</strong>
+            <div style={{ fontSize: 12, opacity: 0.8 }}>{rol}</div>
+          </div>
+
         </div>
 
-        <div>
-          <strong>Mobilesco ERP</strong>
-          <div style={{ fontSize: 12, opacity: 0.8 }}>Administrador</div>
-        </div>
+        {/* DROPDOWN */}
+        {openMenu && (
+
+          <div
+            style={{
+              position: "absolute",
+              top: 55,
+              left: 0,
+              width: "100%",
+              background: "#2f5e58",
+              borderRadius: 8,
+              boxShadow: "0 4px 10px rgba(0,0,0,0.3)",
+              overflow: "hidden"
+            }}
+          >
+
+            <button
+              onClick={handleLogout}
+              style={{
+                width: "100%",
+                border: "none",
+                background: "transparent",
+                color: "#fff",
+                padding: "10px 12px",
+                textAlign: "left",
+                cursor: "pointer"
+              }}
+            >
+              <i className="bi bi-box-arrow-right me-2"></i>
+              Cerrar sesión
+            </button>
+
+          </div>
+
+        )}
+
       </div>
 
-      {/* Menú  de Opciones*/}
+      {/* MENÚ */}
       <nav style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-      
-        <NavLink  //Dashboard
+
+        {/* Dashboard */}
+        <NavLink
           to="/tablero"
           style={({ isActive }) => ({
             color: "#fff",
@@ -42,11 +153,13 @@ export default function Sidebar() {
             background: isActive ? "#1b7f72" : "transparent",
           })}
         >
-           <i className="bi bi-speedometer2 me-2"></i>
+          <i className="bi bi-speedometer2 me-2"></i>
           Tablero
         </NavLink>
 
-        <NavLink //Productos
+
+        {/* Productos */}
+        <NavLink
           to="/productos"
           style={({ isActive }) => ({
             color: "#fff",
@@ -61,47 +174,74 @@ export default function Sidebar() {
         </NavLink>
 
 
-       <div>
-  {/* BOTÓN PADRE */}
-  <button
-  className="sidebar-parent"
-  data-bs-toggle="collapse"
-  data-bs-target="#menuProveedores"
->
-  <div className="sidebar-parent-content">
-    <i className="bi bi-truck me-2"></i>
-    <span>Proveedores</span>
-  </div>
+        {/* EMPLEADOS */}
+        <div>
 
-  <i className="bi bi-chevron-down sidebar-chevron"></i>
-</button>
+          <button
+            className="sidebar-parent"
+            data-bs-toggle="collapse"
+            data-bs-target="#menuEmpleados"
+          >
+            <div className="sidebar-parent-content">
+              <i className="bi bi-people me-2"></i>
+              <span>Empleados</span>
+            </div>
 
+            <i className="bi bi-chevron-down sidebar-chevron"></i>
+          </button>
 
-  {/* SUBMENÚ */}
-  <div className="collapse sidebar-submenu" id="menuProveedores">
+          <div className="collapse sidebar-submenu" id="menuEmpleados">
 
-    <NavLink
-      to="/proveedores"
-      className="sidebar-link"
-    >
-      <i className="bi bi-list-ul me-2"></i>
-      Lista Proveedores
-    </NavLink>
+            <NavLink to="/empleados" className="sidebar-link">
+              <i className="bi bi-list-ul me-2"></i>
+              Lista Empleados
+            </NavLink>
 
-    <NavLink
-      to="/proveedores/nuevo"
-      className="sidebar-link"
-    >
-      <i className="bi-plus-circle me-2"> </i>
-      Nuevo Proveedor
-    </NavLink>
+            <NavLink to="/empleados/nuevo" className="sidebar-link">
+              <i className="bi bi-plus-circle me-2"></i>
+              Nuevo Empleado
+            </NavLink>
 
-  </div>
-</div>
+          </div>
+
+        </div>
 
 
-          
-        <NavLink //Insumos
+        {/* PROVEEDORES */}
+        <div>
+
+          <button
+            className="sidebar-parent"
+            data-bs-toggle="collapse"
+            data-bs-target="#menuProveedores"
+          >
+            <div className="sidebar-parent-content">
+              <i className="bi bi-truck me-2"></i>
+              <span>Proveedores</span>
+            </div>
+
+            <i className="bi bi-chevron-down sidebar-chevron"></i>
+          </button>
+
+          <div className="collapse sidebar-submenu" id="menuProveedores">
+
+            <NavLink to="/proveedores" className="sidebar-link">
+              <i className="bi bi-list-ul me-2"></i>
+              Lista Proveedores
+            </NavLink>
+
+            <NavLink to="/proveedores/nuevo" className="sidebar-link">
+              <i className="bi bi-plus-circle me-2"></i>
+              Nuevo Proveedor
+            </NavLink>
+
+          </div>
+
+        </div>
+
+
+        {/* Insumos */}
+        <NavLink
           to="/insumos"
           style={({ isActive }) => ({
             color: "#fff",
@@ -113,46 +253,44 @@ export default function Sidebar() {
         >
           <i className="bi bi-tools me-2"></i>
           Insumos
-        </NavLink> 
+        </NavLink>
 
-         <div>
-  {/* BOTÓN PADRE */}
-  <button
-    className="sidebar-parent"
-    data-bs-toggle="collapse"
-    data-bs-target="#menuUnidadesMedida" 
-  >
-    <div className="sidebar-parent-content">
-      <i className="bi bi-rulers me-2"></i>    {/* 👈 Icono diferente */}
-      <span>Unidades de Medida</span>          {/* 👈 Texto diferente */}
-    </div>
 
-    <i className="bi bi-chevron-down sidebar-chevron"></i>
-  </button>
+        {/* UNIDADES DE MEDIDA */}
+        <div>
 
-  {/* SUBMENÚ */}
-  <div className="collapse sidebar-submenu" id="menuUnidadesMedida">  {/* 👈 ID diferente */}
+          <button
+            className="sidebar-parent"
+            data-bs-toggle="collapse"
+            data-bs-target="#menuUnidadesMedida"
+          >
+            <div className="sidebar-parent-content">
+              <i className="bi bi-rulers me-2"></i>
+              <span>Unidades de Medida</span>
+            </div>
 
-    <NavLink
-      to="/unidades-medida"                    
-      className="sidebar-link"
-    >
-      <i className="bi bi-list-ul me-2"></i>
-      Lista Unidades                            {/* 👈 Texto diferente */}
-    </NavLink>
+            <i className="bi bi-chevron-down sidebar-chevron"></i>
+          </button>
 
-    <NavLink
-      to="/unidades-medida/nuevo"               
-      className="sidebar-link"
-    >
-      <i className="bi bi-plus-circle me-2"></i>
-      Nueva Unidad                               {/* 👈 Texto diferente */}
-    </NavLink>
+          <div className="collapse sidebar-submenu" id="menuUnidadesMedida">
 
-  </div>
-</div>
+            <NavLink to="/unidades-medida" className="sidebar-link">
+              <i className="bi bi-list-ul me-2"></i>
+              Lista Unidades
+            </NavLink>
 
-         <NavLink //Nueva Cotizacion
+            <NavLink to="/unidades-medida/nuevo" className="sidebar-link">
+              <i className="bi bi-plus-circle me-2"></i>
+              Nueva Unidad
+            </NavLink>
+
+          </div>
+
+        </div>
+
+
+        {/* Nueva Cotización */}
+        <NavLink
           to="/nuevaCotizacion"
           style={({ isActive }) => ({
             color: "#fff",
@@ -162,11 +300,13 @@ export default function Sidebar() {
             background: isActive ? "#1b7f72" : "transparent",
           })}
         >
-          <i className="bi-plus-circle"> </i>
-          Nueva Cotizacion
-        </NavLink> 
+          <i className="bi bi-plus-circle me-2"></i>
+          Nueva Cotización
+        </NavLink>
 
-          <NavLink //Cotizaciones
+
+        {/* Cotizaciones */}
+        <NavLink
           to="/cotizaciones"
           style={({ isActive }) => ({
             color: "#fff",
@@ -178,8 +318,12 @@ export default function Sidebar() {
         >
           <i className="bi bi-list-ul me-2"></i>
           Cotizaciones
-        </NavLink> 
+        </NavLink>
+
       </nav>
+
     </aside>
+
   );
+
 }

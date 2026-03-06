@@ -18,12 +18,14 @@ public class SecurityConfig {
 public SecurityFilterChain filterChain(HttpSecurity http, JwtAuthFilter jwtAuthFilter) throws Exception {
 
     http
+        .cors(cors -> {})
         .csrf(csrf -> csrf.disable())
         .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
         .authorizeHttpRequests(auth -> auth
             .requestMatchers("/api/v1/auth/login", "/api/v1/auth/refresh").permitAll()
             .requestMatchers("/swagger-ui/**", "/v3/api-docs/**").permitAll()
             .requestMatchers("/uploads/**").permitAll()
+            //.requestMatchers("/api/v1/proveedores/**").permitAll()
             .anyRequest().authenticated()
         )
         // 👇 Aquí agregamos el filtro JWT

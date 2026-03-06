@@ -10,29 +10,41 @@ import ProveedoresPage from "./pages/Proveedores/ProveedoresPage.jsx";
 import ProveedorFormPage from "./pages/Proveedores/ProveedorFormPage.jsx";
 import UnidadesMedidaPage from "./pages/UnidadMedidas/UnidadMedidaPage.jsx";
 import UnidadMedidaFormPage from "./pages/UnidadMedidas/UnidadMedidaFormPage.jsx";
-
+import Login from "./pages/auth/Login.jsx";
+import EmpleadoFormPage from "./pages/Empleados/EmpleadoFormPage.jsx";
+import EmpleadosPage from "./pages/Empleados/EmpleadoPage.jsx";
 
 export default function App() {
   return (
     <Routes>
+      {/* Login SIN layout */}
+      <Route path="/login" element={<Login />} />
+
+      {/* Todo lo demás CON layout */}
       <Route element={<AppLayout />}>
-        {/* Al entrar a /, manda a /tablero */}
         <Route path="/" element={<Navigate to="/tablero" replace />} />
 
         <Route path="/tablero" element={<Tablero />} />
-        <Route path="/productos" element={<Productos />} />  
-        <Route path="/insumos" element= {<Insumos /> } />
-        <Route path="/unidadMedida" element={<UnidadMedida/>}/>
-        <Route path="/nuevaCotizacion" element={<NuevaCotizacion />}/>
-        <Route path="/cotizaciones" element= {<Cotizacion />} />
-        <Route path="/proveedores" element={<ProveedoresPage />} />
-          <Route path="/proveedores/nuevo" element={<ProveedorFormPage />} />
-          <Route path="/proveedores/:id" element={<ProveedorFormPage />} />
-        <Route path="/unidades-medida" element={<UnidadesMedidaPage />} />
-          <Route path="/unidades-medida/nuevo" element={<UnidadMedidaFormPage />} />
-          <Route path="/unidades-medida/:id" element={<UnidadMedidaFormPage />} />
+        <Route path="/productos" element={<Productos />} />
+        <Route path="/insumos" element={<Insumos />} />
+        <Route path="/unidadMedida" element={<UnidadMedida />} />
+        <Route path="/nuevaCotizacion" element={<NuevaCotizacion />} />
+        <Route path="/cotizaciones" element={<Cotizacion />} />
 
-        {/* opcional: 404 */}
+        {/* 👇 EMPLEADOS - PRIMERO las rutas específicas, después la general */}
+        <Route path="/empleados/nuevo" element={<EmpleadoFormPage />} />
+        <Route path="/empleados/:id" element={<EmpleadoFormPage />} />
+        <Route path="/empleados" element={<EmpleadosPage />} />
+
+        <Route path="/proveedores" element={<ProveedoresPage />} />
+        <Route path="/proveedores/nuevo" element={<ProveedorFormPage />} />
+        <Route path="/proveedores/:id" element={<ProveedorFormPage />} />
+
+        <Route path="/unidades-medida" element={<UnidadesMedidaPage />} />
+        <Route path="/unidades-medida/nuevo" element={<UnidadMedidaFormPage />} />
+        <Route path="/unidades-medida/:id" element={<UnidadMedidaFormPage />} />
+
+        {/* 404 */}
         <Route path="*" element={<Navigate to="/tablero" replace />} />
       </Route>
     </Routes>
