@@ -116,6 +116,21 @@ export default function Sidebar() {
               overflow: "hidden"
             }}
           >
+            <button
+              onClick={() => navigate("/perfil")}
+              style={{
+                width: "100%",
+                border: "none",
+                background: "transparent",
+                color: "#fff",
+                padding: "10px 12px",
+                textAlign: "left",
+                cursor: "pointer"
+              }}
+            >
+              <i className="bi bi-person me-2"></i>
+              Perfil
+            </button>
 
             <button
               onClick={handleLogout}

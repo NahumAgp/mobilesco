@@ -1,7 +1,7 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 
-import { login, getCurrentUser } from "../../services/authService";
+import { login, getCurrentUser, isAuthenticated } from "../../services/authService";
 
 export default function Login() {
 
@@ -14,6 +14,14 @@ export default function Login() {
 
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+
+    if (isAuthenticated()) {
+      navigate("/tablero");
+    }
+
+  }, []);
 
   const handleChange = (e) => {
 
@@ -33,35 +41,24 @@ export default function Login() {
 
     try {
 
-      console.log("🔵 Enviando login...");
-
       const response = await login(credentials);
-
-      console.log("🟢 Login response:", response);
 
       if (!response?.accessToken) {
         throw new Error("Token no recibido");
       }
 
-      // guardar tokens
       localStorage.setItem("token", response.accessToken);
       localStorage.setItem("refreshToken", response.refreshToken);
 
-      console.log("🟢 Tokens guardados");
-
-      // obtener usuario autenticado
       const user = await getCurrentUser();
-
-      console.log("🟢 Usuario autenticado:", user);
 
       localStorage.setItem("user", JSON.stringify(user));
 
-      // redirigir
       navigate("/tablero");
 
     } catch (err) {
 
-      console.error("🔴 Error login:", err);
+      console.error("Error login:", err);
 
       setError(
         err.message || "Credenciales incorrectas o error de conexión"

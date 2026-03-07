@@ -85,6 +85,12 @@ export function getUser() {
 // ============================
 export function isAuthenticated() {
 
-  return !!getToken();
+  const token = localStorage.getItem("token");
+
+  if (!token || token === "null" || token === "undefined") {
+    return false;
+  }
+
+  return true;
 
 }
