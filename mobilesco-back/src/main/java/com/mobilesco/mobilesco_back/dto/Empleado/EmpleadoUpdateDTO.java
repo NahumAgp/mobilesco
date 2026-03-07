@@ -24,4 +24,8 @@ public class EmpleadoUpdateDTO {
     private String telefono;
 
     private String fechaNacimiento;
+
+    private String email;
+    private String password;
+
 }

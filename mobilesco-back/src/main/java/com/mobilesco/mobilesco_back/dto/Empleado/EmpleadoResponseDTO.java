@@ -24,5 +24,9 @@ public class EmpleadoResponseDTO {
 
     private Boolean activo;
 
+    private String correo;
+    private Boolean tieneCuenta;
+
     private LocalDateTime fechaRegistro;
+    
 }

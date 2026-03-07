@@ -16,20 +16,17 @@ export default function EmpleadoFormPage() {
   const { id } = useParams();
   const isEditing = !!id;
 
-  const [mostrarUsuario, setMostrarUsuario] = useState(false);
+  const [mostrarCuenta, setMostrarCuenta] = useState(false);
 
   const [formData, setFormData] = useState({
-
     nombre: "",
     apellidoPaterno: "",
     apellidoMaterno: "",
     telefono: "",
     fechaNacimiento: "",
     activo: true,
-
     email: "",
     password: ""
-
   });
 
   const [loading, setLoading] = useState(false);
@@ -41,11 +38,9 @@ export default function EmpleadoFormPage() {
   const [toastType, setToastType] = useState("success");
 
   useEffect(() => {
-
     if (isEditing) {
       cargarEmpleado();
     }
-
   }, [id]);
 
   const cargarEmpleado = async () => {
@@ -56,20 +51,24 @@ export default function EmpleadoFormPage() {
 
       const data = await obtenerEmpleadoPorId(id);
 
-      setFormData({
+      console.log("Empleado cargado:", data);
 
+      setFormData({
         nombre: data.nombre || "",
         apellidoPaterno: data.apellidoPaterno || "",
         apellidoMaterno: data.apellidoMaterno || "",
         telefono: data.telefono || "",
         fechaNacimiento: data.fechaNacimiento || "",
         activo: data.activo ?? true,
-        email: "",
+        email: data.correo || "",
         password: ""
-
       });
 
+      setMostrarCuenta(data.tieneCuenta === true);
+
     } catch (error) {
+
+      console.error("Error al cargar empleado:", error);
 
       setToastType("danger");
       setToastMessage("Error al cargar empleado");
@@ -92,12 +91,10 @@ export default function EmpleadoFormPage() {
     });
 
     if (errors[name]) {
-
       setErrors({
         ...errors,
         [name]: null
       });
-
     }
 
   };
@@ -114,7 +111,6 @@ export default function EmpleadoFormPage() {
       newErrors.apellidoPaterno = "El apellido paterno es requerido";
     }
 
-    // Validación de usuario
     const email = formData.email?.trim();
     const pass = formData.password?.trim();
 
@@ -137,10 +133,8 @@ export default function EmpleadoFormPage() {
     const validationErrors = validate();
 
     if (Object.keys(validationErrors).length > 0) {
-
       setErrors(validationErrors);
       return;
-
     }
 
     const datos = {
@@ -150,11 +144,12 @@ export default function EmpleadoFormPage() {
       apellidoMaterno: formData.apellidoMaterno.trim(),
       telefono: formData.telefono?.trim(),
       fechaNacimiento: formData.fechaNacimiento || null,
-      activo: formData.activo,
+      activo: formData.activo
 
+      
     };
+    console.log(formData);
 
-    // Solo enviar usuario si se llenaron ambos
     if (formData.email && formData.password) {
 
       datos.email = formData.email.trim();
@@ -188,7 +183,7 @@ export default function EmpleadoFormPage() {
 
     } catch (error) {
 
-      console.error(error);
+      console.error("Error al guardar empleado:", error);
 
       setToastType("danger");
       setToastMessage("Error al guardar empleado");
@@ -246,69 +241,53 @@ export default function EmpleadoFormPage() {
               <div className="row">
 
                 <div className="col-md-4 mb-3">
-
                   <label className="form-label">Nombre *</label>
-
                   <input
                     className={`form-control ${errors.nombre ? 'is-invalid' : ''}`}
                     name="nombre"
                     value={formData.nombre}
                     onChange={handleChange}
                   />
-
                   {errors.nombre && (
                     <div className="invalid-feedback">{errors.nombre}</div>
                   )}
-
                 </div>
 
                 <div className="col-md-4 mb-3">
-
                   <label className="form-label">Apellido Paterno *</label>
-
                   <input
                     className={`form-control ${errors.apellidoPaterno ? 'is-invalid' : ''}`}
                     name="apellidoPaterno"
                     value={formData.apellidoPaterno}
                     onChange={handleChange}
                   />
-
                   {errors.apellidoPaterno && (
                     <div className="invalid-feedback">{errors.apellidoPaterno}</div>
                   )}
-
                 </div>
 
                 <div className="col-md-4 mb-3">
-
                   <label className="form-label">Apellido Materno</label>
-
                   <input
                     className="form-control"
                     name="apellidoMaterno"
                     value={formData.apellidoMaterno}
                     onChange={handleChange}
                   />
-
                 </div>
 
                 <div className="col-md-4 mb-3">
-
                   <label className="form-label">Teléfono</label>
-
                   <input
                     className="form-control"
                     name="telefono"
                     value={formData.telefono}
                     onChange={handleChange}
                   />
-
                 </div>
 
                 <div className="col-md-4 mb-3">
-
                   <label className="form-label">Fecha Nacimiento</label>
-
                   <input
                     type="date"
                     className="form-control"
@@ -316,7 +295,6 @@ export default function EmpleadoFormPage() {
                     value={formData.fechaNacimiento || ""}
                     onChange={handleChange}
                   />
-
                 </div>
 
                 <div className="col-md-4 mb-3 d-flex align-items-center">
@@ -341,76 +319,43 @@ export default function EmpleadoFormPage() {
 
               </div>
 
-              {/* BOTÓN CREAR CUENTA */}
-
-              {!mostrarUsuario && (
-
-                <div className="mt-3">
-
+              {!mostrarCuenta && (
+                <div className="col-12 mb-3">
                   <button
                     type="button"
                     className="btn btn-outline-primary"
-                    onClick={() => setMostrarUsuario(true)}
+                    onClick={() => setMostrarCuenta(true)}
                   >
-                    Crear cuenta de usuario
+                    Crear cuenta
                   </button>
-
                 </div>
-
               )}
 
-              {/* CAMPOS DE USUARIO */}
-
-              {mostrarUsuario && (
-
-                <div className="mt-4">
-
-                  <hr />
-
-                  <h5>Cuenta de Usuario</h5>
-
-                  <div className="row">
-
-                    <div className="col-md-6 mb-3">
-
-                      <label className="form-label">Correo</label>
-
-                      <input
-                        type="email"
-                        className={`form-control ${errors.email ? 'is-invalid' : ''}`}
-                        name="email"
-                        value={formData.email}
-                        onChange={handleChange}
-                      />
-
-                      {errors.email && (
-                        <div className="invalid-feedback">{errors.email}</div>
-                      )}
-
-                    </div>
-
-                    <div className="col-md-6 mb-3">
-
-                      <label className="form-label">Contraseña</label>
-
-                      <input
-                        type="password"
-                        className={`form-control ${errors.password ? 'is-invalid' : ''}`}
-                        name="password"
-                        value={formData.password}
-                        onChange={handleChange}
-                      />
-
-                      {errors.password && (
-                        <div className="invalid-feedback">{errors.password}</div>
-                      )}
-
-                    </div>
-
+              {mostrarCuenta && (
+                <>
+                  <div className="col-md-6 mb-3">
+                    <label>Correo</label>
+                    <input
+                      type="email"
+                      className="form-control"
+                      name="email"
+                      value={formData.email}
+                      onChange={handleChange}
+                    />
                   </div>
 
-                </div>
-
+                  <div className="col-md-6 mb-3">
+                    <label>Contraseña</label>
+                    <input
+                      type="password"
+                      className="form-control"
+                      name="password"
+                      value={formData.password}
+                      onChange={handleChange}
+                      placeholder="Dejar vacío para no cambiar"
+                    />
+                  </div>
+                </>
               )}
 
               <div className="d-flex justify-content-end gap-2 mt-3">

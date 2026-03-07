@@ -43,3 +43,20 @@ export function eliminarEmpleado(id) {
     method: "DELETE"
   });
 }
+
+// ========================================
+// SUBIR FOTO
+// ========================================
+
+export function subirFotoPerfil(file) {
+
+  const formData = new FormData();
+
+  // ⚠️ clave correcta según tu backend
+  formData.append("archivo", file);
+
+  return request(API_PATHS.EMPLEADOS_ME_FOTO, {
+    method: "POST",
+    body: formData
+  });
+}

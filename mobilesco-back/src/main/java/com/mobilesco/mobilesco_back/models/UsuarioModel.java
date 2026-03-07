@@ -39,7 +39,7 @@ public class UsuarioModel {
     @Column(name = "last_login_at")
     private LocalDateTime lastLoginAt;
 
-    @ManyToMany(fetch = FetchType.EAGER)
+   @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(
         name = "user_roles",
         joinColumns = @JoinColumn(name = "user_id"),

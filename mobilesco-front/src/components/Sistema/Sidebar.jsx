@@ -6,7 +6,7 @@ import { useState, useRef, useEffect } from "react";
 export default function Sidebar() {
 
   const navigate = useNavigate();
-  const user = getUser();
+ const [user, setUser] = useState(getUser());
 
   const [openMenu, setOpenMenu] = useState(false);
   const menuRef = useRef(null);
@@ -36,6 +36,18 @@ export default function Sidebar() {
     navigate("/login");
 
   };
+
+  useEffect(() => {
+
+  const updateUser = () => {
+    setUser(getUser());
+  };
+
+  window.addEventListener("userUpdated", updateUser);
+
+  return () => window.removeEventListener("userUpdated", updateUser);
+
+}, []);
 
   // cerrar dropdown si se hace click fuera
   useEffect(() => {

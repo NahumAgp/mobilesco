@@ -14,6 +14,9 @@ export default function EmpleadosTable({ data, onEditar, onEliminar }) {
             <th>ID</th>
             <th>Nombre</th>
             <th>Teléfono</th>
+            <th>Correo</th>
+            <th>Fecha de Registro</th>
+            <th>Cuenta</th>
             <th>Estado</th>
             <th>Acciones</th>
           </tr>
@@ -43,6 +46,26 @@ export default function EmpleadosTable({ data, onEditar, onEliminar }) {
                 </td>
 
                 <td>{e.telefono}</td>
+                
+                <td>{e.correo}</td>
+
+               <td>{new Date(e.fechaRegistro).toLocaleDateString('es-ES', {
+                  year: 'numeric',
+                  month: '2-digit', 
+                  day: '2-digit' })}
+                </td>
+
+                <td>
+                  <span
+                    className={
+                      e.tieneCuenta
+                        ? "badge bg-success-subtle text-success border border-success-subtle"
+                        : "badge bg-secondary-subtle text-secondary border border-secondary-subtle"
+                    }
+                  >
+                    {e.tieneCuenta ? "Activa" : "Inactiva"}
+                  </span>
+                </td>
 
                 <td>
 

@@ -30,7 +30,7 @@ public class EmpleadoService {
     private final RolRepository roleRepository;
     private final PasswordEncoder passwordEncoder;
 
-     public EmpleadoService(
+    public EmpleadoService(
             EmpleadoRepository empleadoRepository,
             UsuarioRepository userRepository,
             RolRepository roleRepository,
@@ -47,23 +47,28 @@ public class EmpleadoService {
     // =====================================================
 
     private EmpleadoResponseDTO mapToResponseDTO(EmpleadoModel empleado) {
+
         EmpleadoResponseDTO dto = new EmpleadoResponseDTO();
 
         dto.setId(empleado.getId());
-
         dto.setNombre(empleado.getNombre());
         dto.setApellidoPaterno(empleado.getApellidoPaterno());
         dto.setApellidoMaterno(empleado.getApellidoMaterno());
-
         dto.setTelefono(empleado.getTelefono());
-
         dto.setFechaNacimiento(empleado.getFechaNacimiento());
-
         dto.setFotoUrl(empleado.getFotoUrl());
-
         dto.setActivo(empleado.getActivo());
-
         dto.setFechaRegistro(empleado.getFechaRegistro());
+
+        // 🔹 Buscar usuario ligado
+        UsuarioModel usuario = userRepository.findByEmpleado(empleado).orElse(null);
+
+        if (usuario != null) {
+            dto.setCorreo(usuario.getEmail());
+            dto.setTieneCuenta(true);
+        } else {
+            dto.setTieneCuenta(false);
+        }
 
         return dto;
     }
@@ -77,10 +82,10 @@ public class EmpleadoService {
     // =====================================================
     // 🔹 CREATE
     // =====================================================
+
     @Transactional
     public EmpleadoResponseDTO crear(EmpleadoCreateDTO dto) {
 
-        // 1) Crear empleado
         EmpleadoModel empleado = new EmpleadoModel();
         empleado.setNombre(dto.getNombre());
         empleado.setApellidoPaterno(dto.getApellidoPaterno());
@@ -90,18 +95,15 @@ public class EmpleadoService {
 
         EmpleadoModel empleadoGuardado = empleadoRepository.save(empleado);
 
-        // 2) Si trae email/password, crear usuario y ligarlo
         boolean traeCuenta =
                 dto.getEmail() != null && !dto.getEmail().isBlank()
                 && dto.getPassword() != null && !dto.getPassword().isBlank();
 
         if (traeCuenta) {
 
-            // Validar que no exista ya el email
             userRepository.findByEmail(dto.getEmail())
                 .ifPresent(u -> { throw new BadRequestException("Ese correo ya está registrado."); });
 
-            // Rol por defecto
             RolModel rolEmpleado = roleRepository.findByName("EMPLOYEE")
                     .orElseThrow(() -> new BadRequestException("No existe el rol EMPLOYEE"));
 
@@ -110,11 +112,7 @@ public class EmpleadoService {
             user.setPasswordHash(passwordEncoder.encode(dto.getPassword()));
             user.setEnabled(true);
             user.setLocked(false);
-
-            // AQUÍ ES LA LIGA
             user.setEmpleado(empleadoGuardado);
-
-            // Asignar rol
             user.setRoles(Set.of(rolEmpleado));
 
             userRepository.save(user);
@@ -122,7 +120,6 @@ public class EmpleadoService {
 
         return mapToResponseDTO(empleadoGuardado);
     }
-
 
     // =====================================================
     // 🔹 READ - Todos
@@ -172,6 +169,7 @@ public class EmpleadoService {
     // 🔹 UPDATE
     // =====================================================
 
+    @Transactional
     public EmpleadoResponseDTO actualizar(Long id, EmpleadoUpdateDTO dto) {
 
         EmpleadoModel existente = empleadoRepository.findById(id)
@@ -180,7 +178,6 @@ public class EmpleadoService {
         existente.setNombre(dto.getNombre());
         existente.setApellidoPaterno(dto.getApellidoPaterno());
         existente.setApellidoMaterno(dto.getApellidoMaterno());
-
         existente.setTelefono(dto.getTelefono());
 
         if (dto.getFechaNacimiento() != null && !dto.getFechaNacimiento().isBlank()) {
@@ -191,22 +188,83 @@ public class EmpleadoService {
 
         EmpleadoModel guardado = empleadoRepository.save(existente);
 
+        boolean traeCuenta =
+                dto.getEmail() != null && !dto.getEmail().isBlank()
+                && dto.getPassword() != null && !dto.getPassword().isBlank();
+
+        UsuarioModel usuario = userRepository.findByEmpleado(guardado).orElse(null);
+
+        if (usuario == null && traeCuenta) {
+
+            userRepository.findByEmail(dto.getEmail())
+                .ifPresent(u -> { throw new BadRequestException("Ese correo ya está registrado."); });
+
+            RolModel rolEmpleado = roleRepository.findByName("EMPLOYEE")
+                    .orElseThrow(() -> new BadRequestException("No existe el rol EMPLOYEE"));
+
+            UsuarioModel nuevoUsuario = new UsuarioModel();
+            nuevoUsuario.setEmail(dto.getEmail());
+            nuevoUsuario.setPasswordHash(passwordEncoder.encode(dto.getPassword()));
+            nuevoUsuario.setEnabled(true);
+            nuevoUsuario.setLocked(false);
+            nuevoUsuario.setEmpleado(guardado);
+            nuevoUsuario.setRoles(Set.of(rolEmpleado));
+
+            userRepository.save(nuevoUsuario);
+        }
+
+        if (usuario != null) {
+
+            // actualizar email solo si viene
+            if (dto.getEmail() != null && !dto.getEmail().isBlank()) {
+
+                userRepository.findByEmail(dto.getEmail())
+                        .filter(u -> !u.getId().equals(usuario.getId()))
+                        .ifPresent(u -> { throw new BadRequestException("Ese correo ya está registrado."); });
+
+                usuario.setEmail(dto.getEmail());
+            }
+
+            // actualizar password solo si viene
+            if (dto.getPassword() != null && !dto.getPassword().isBlank()) {
+                usuario.setPasswordHash(passwordEncoder.encode(dto.getPassword()));
+            }
+
+            userRepository.save(usuario);
+        }
+
         return mapToResponseDTO(guardado);
     }
 
     // =====================================================
-    // 🔹 DELETE (Yo prefiero "desactivar", pero te dejo delete también)
+    // 🔹 DELETE
     // =====================================================
 
-    public void eliminar(Long id) {
-        if (!empleadoRepository.existsById(id)) {
-            throw new NotFoundException("Empleado no encontrado");
-        }
-        empleadoRepository.deleteById(id);
+ @Transactional
+public void eliminar(Long id) {
+
+    EmpleadoModel empleado = empleadoRepository.findById(id)
+            .orElseThrow(() -> new NotFoundException("Empleado no encontrado"));
+
+    UsuarioModel usuario = userRepository.findByEmpleado(empleado).orElse(null);
+
+    if (usuario != null) {
+
+        // eliminar relación con roles
+        usuario.getRoles().clear();
+
+        userRepository.save(usuario);
+
+        // eliminar usuario
+        userRepository.delete(usuario);
     }
 
+    // eliminar empleado
+    empleadoRepository.delete(empleado);
+}
+
     // =====================================================
-    // 🔹 DESACTIVAR / ACTIVAR (ERP recomendado)
+    // 🔹 DESACTIVAR / ACTIVAR
     // =====================================================
 
     public EmpleadoResponseDTO cambiarActivo(Long id, Boolean activo) {

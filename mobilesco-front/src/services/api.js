@@ -10,7 +10,7 @@ async function request(endpoint, options = {}) {
 
   const headers = {
     "Content-Type": "application/json",
-    ...options.headers,
+    ...options.headers
   };
 
   if (token) {
@@ -23,7 +23,7 @@ async function request(endpoint, options = {}) {
 
   const config = {
     ...options,
-    headers,
+    headers
   };
 
   const url = endpoint.startsWith("http")
@@ -32,14 +32,27 @@ async function request(endpoint, options = {}) {
 
   try {
 
-    console.log(`🌐 ${options.method || "GET"} ${url}`);
-
     const response = await fetch(url, config);
 
-    const data = await response.json();
+    const text = await response.text(); // solo se lee una vez
+
+    let data = null;
+
+    if (text) {
+      try {
+        data = JSON.parse(text);
+      } catch {
+        data = text;
+      }
+    }
 
     if (!response.ok) {
-      throw new Error(data.message || "Error en la petición");
+      console.error("❌ Backend response:", data);
+      throw new Error(
+        data?.message ||
+        data?.error ||
+        "Error del servidor"
+      );
     }
 
     return data;

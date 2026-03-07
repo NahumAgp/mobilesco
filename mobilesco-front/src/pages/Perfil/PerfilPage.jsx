@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { getUser } from "../../services/authService";
 import "./PerfilPage.css";
+import { subirFotoPerfil } from "../../services/empleados";
 
 export default function PerfilPage() {
 
@@ -10,13 +11,31 @@ export default function PerfilPage() {
     user?.fotoUrl ? `http://localhost:8081${user.fotoUrl}` : null
   );
 
-  const handleFotoChange = (e) => {
+  const handleFotoChange = async (e) => {
 
     const file = e.target.files[0];
     if (!file) return;
 
-    const url = URL.createObjectURL(file);
-    setFotoPreview(url);
+    const preview = URL.createObjectURL(file);
+    setFotoPreview(preview);
+
+    try {
+
+      const response = await subirFotoPerfil(file);
+
+      const user = JSON.parse(localStorage.getItem("user"));
+
+      user.fotoUrl = response.fotoUrl;
+
+      localStorage.setItem("user", JSON.stringify(user));
+
+      window.dispatchEvent(new Event("userUpdated"));
+
+    } catch (error) {
+
+      console.error("Error subiendo foto:", error);
+
+    }
 
   };
 
