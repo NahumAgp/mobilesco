@@ -29,7 +29,6 @@ public class FamiliaServiceImpl implements FamiliaService {
 
         familia.setNombre(dto.getNombre());
         familia.setDescripcion(dto.getDescripcion());
-        familia.setActivo(Boolean.TRUE.equals(dto.getActivo()));
 
         if (dto.getPadreId() != null) {
             FamiliaModel padre = familiaRepository.findById(dto.getPadreId())
