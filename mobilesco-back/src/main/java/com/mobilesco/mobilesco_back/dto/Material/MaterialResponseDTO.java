@@ -1,4 +1,4 @@
-package com.mobilesco.mobilesco_back.dto.Insumo;
+package com.mobilesco.mobilesco_back.dto.Material;
 
 import java.time.LocalDateTime;
 
@@ -11,21 +11,11 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class InsumoResponseDTO {
+public class MaterialResponseDTO {
     private Long id;
     private String nombre;
     private String descripcion;
-    
-    // Datos de unidad de medida (consumo)
-    private Long unidadMedidaId;
-    private String unidadMedidaNombre;
-    private String unidadMedidaSimbolo;
-    
-    private Double stockActual;
-    private Double stockMinimo;
     private Boolean activo;
     private LocalDateTime fechaRegistro;
     private LocalDateTime fechaActualizacion;
-    
-    // NOTA: El costo NO va aquí, se obtiene de compras/kardex
 }

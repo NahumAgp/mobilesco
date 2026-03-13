@@ -4,12 +4,9 @@ import java.time.LocalDateTime;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.ForeignKey;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.PreUpdate;
 import jakarta.persistence.Table;
@@ -22,9 +19,9 @@ import lombok.Setter;
 
 @Entity
 @Table(
-    name = "insumo",
+    name = "material",
     uniqueConstraints = {
-        @UniqueConstraint(name = "uk_insumo_nombre", columnNames = {"nombre"})
+        @UniqueConstraint(name = "uk_material_nombre", columnNames = {"nombre"})
     }
 )
 @Getter
@@ -32,52 +29,39 @@ import lombok.Setter;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class InsumoModel {
+public class MaterialModel {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "nombre", nullable = false, length = 150)
+    @Column(name = "nombre", nullable = false, length = 100)
     private String nombre;
 
-    @Column(name = "descripcion", length = 500)
+    @Column(name = "descripcion", length = 255)
     private String descripcion;
 
-    // 📌 UNIDAD DE MEDIDA (siempre en unidad de CONSUMO)
-    @ManyToOne
-    @JoinColumn(name = "unidad_medida_id", nullable = false, 
-                foreignKey = @ForeignKey(name = "fk_insumo_unidad_medida"))
-    private UnidadMedidaModel unidadMedida;  // METRO, KG, PIEZA, GRAMO, etc.
-
-    // 📦 STOCK (siempre en unidad de consumo)
-    @Column(name = "stock_actual", nullable = false)
-    @Builder.Default
-    private Double stockActual = 0.0;
-
-    @Column(name = "stock_minimo")
-    private Double stockMinimo;
-
-    // 🏷️ CONTROL
     @Column(nullable = false)
-    @Builder.Default
-    private Boolean activo = true;
+    private Boolean activo;
 
-    @Column(name = "fecha_registro", nullable = false, updatable = false)
+    @Column(name = "fecha_registro", nullable = false)
     private LocalDateTime fechaRegistro;
 
     @Column(name = "fecha_actualizacion", nullable = false)
     private LocalDateTime fechaActualizacion;
 
     @PrePersist
-    protected void prePersist() {
+    public void prePersist() {
         LocalDateTime now = LocalDateTime.now();
         fechaRegistro = now;
         fechaActualizacion = now;
+        if (activo == null) {
+            activo = true;
+        }
     }
 
     @PreUpdate
-    protected void preUpdate() {
+    public void preUpdate() {
         fechaActualizacion = LocalDateTime.now();
     }
 }
