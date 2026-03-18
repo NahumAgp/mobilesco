@@ -4,13 +4,18 @@ import { API_PATHS } from "../config/apiPaths";
 // ============================
 // LOGIN
 // ============================
-export function login(credentials) {
+export async function login(credentials) {
 
-  return request(API_PATHS.AUTH_LOGIN, {
+  const data = await request(API_PATHS.AUTH_LOGIN, {
     method: "POST",
     body: JSON.stringify(credentials)
   });
 
+  // 🔥 GUARDAR TOKENS AQUÍ (IMPORTANTE)
+  localStorage.setItem("token", data.accessToken);
+  localStorage.setItem("refreshToken", data.refreshToken);
+
+  return data;
 }
 
 
@@ -18,9 +23,7 @@ export function login(credentials) {
 // OBTENER USUARIO ACTUAL
 // ============================
 export function getCurrentUser() {
-
   return request(API_PATHS.AUTH_ME);
-
 }
 
 
@@ -55,6 +58,7 @@ export async function logout() {
   localStorage.removeItem("refreshToken");
   localStorage.removeItem("user");
 
+  window.location.href = "/login"; // 🔥 agregado
 }
 
 
@@ -62,9 +66,7 @@ export async function logout() {
 // TOKEN
 // ============================
 export function getToken() {
-
   return localStorage.getItem("token");
-
 }
 
 

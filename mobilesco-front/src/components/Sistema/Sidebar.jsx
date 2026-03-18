@@ -185,20 +185,7 @@ export default function Sidebar() {
         </NavLink>
 
 
-        {/* Productos */}
-        <NavLink
-          to="/productos"
-          style={({ isActive }) => ({
-            color: "#fff",
-            textDecoration: "none",
-            padding: "10px 12px",
-            borderRadius: 10,
-            background: isActive ? "#1b7f72" : "transparent",
-          })}
-        >
-          <i className="bi bi-box-seam me-2"></i>
-          Productos
-        </NavLink>
+       
 
 
         {/* EMPLEADOS */}
@@ -266,6 +253,188 @@ export default function Sidebar() {
 
         </div>
 
+        
+       {/* Producto (Nivel 1) */}
+      <div>
+        <button
+          className="sidebar-parent"
+          data-bs-toggle="collapse"
+          data-bs-target="#menuProductoS"
+        >
+          <div className="sidebar-parent-content">
+            <i className="bi bi-box-seam me-2"></i>
+            <span>Productos</span>
+          </div>
+          <i className="bi bi-chevron-down sidebar-chevron"></i>
+        </button>
+
+       <div className="collapse sidebar-submenu" id="menuProductoS">
+
+      {/* Familias (Nivel 2) */}
+      <div>
+        <button
+          className="sidebar-parent sidebar-parent--sub"
+          data-bs-toggle="collapse"
+          data-bs-target="#menuFamilias"
+        >
+          <div className="sidebar-parent-content">
+            <i className="bi bi-diagram-3 me-2"></i>
+            <span>Familias</span>
+          </div>
+          <i className="bi bi-chevron-down sidebar-chevron"></i>
+        </button>
+
+        <div className="collapse sidebar-submenu" id="menuFamilias">
+          <NavLink to="/familias" className="sidebar-link sidebar-link--sub">
+            <i className="bi bi-list-ul me-2"></i>
+            Lista de Familias
+          </NavLink>
+          <NavLink to="/familias/nuevo" className="sidebar-link sidebar-link--sub">
+            <i className="bi bi-plus-circle me-2"></i>
+            Nueva Familia
+          </NavLink>
+        </div>
+      </div>
+
+      {/* Estilos (Nivel 2) */}
+      <div>
+        <button
+          className="sidebar-parent sidebar-parent--sub"
+          data-bs-toggle="collapse"
+          data-bs-target="#menuEstilos"
+        >
+          <div className="sidebar-parent-content">
+            <i className="bi bi-palette me-2"></i>
+            <span>Estilos</span>
+          </div>
+          <i className="bi bi-chevron-down sidebar-chevron"></i>
+        </button>
+
+        <div className="collapse sidebar-submenu" id="menuEstilos">
+          <NavLink to="/lineas-producto" className="sidebar-link sidebar-link--sub">
+            <i className="bi bi-list-ul me-2"></i>
+            Lista de Estilos
+          </NavLink>
+          <NavLink to="/lineas-producto/nuevo" className="sidebar-link sidebar-link--sub">
+            <i className="bi bi-plus-circle me-2"></i>
+            Nuevo Estilo
+          </NavLink>
+        </div>
+      </div>
+
+      {/* Categorias (Nivel 2) */}
+      <div>
+        <button
+          className="sidebar-parent sidebar-parent--sub"
+          data-bs-toggle="collapse"
+          data-bs-target="#menuCategoria"
+        >
+          <div className="sidebar-parent-content">
+            <i className="bi bi-tag me-2"></i>
+            <span>Categoria</span>
+          </div>
+          <i className="bi bi-chevron-down sidebar-chevron"></i>
+        </button>
+
+        <div className="collapse sidebar-submenu" id="menuCategoria">
+          <NavLink to="/categorias" className="sidebar-link sidebar-link--sub">
+            <i className="bi bi-list-ul me-2"></i>
+            Lista de Categorias
+          </NavLink>
+          <NavLink to="/categorias/nuevo" className="sidebar-link sidebar-link--sub">
+            <i className="bi bi-plus-circle me-2"></i>
+            Nueva Categoria
+          </NavLink>
+        </div>
+      </div>
+
+      {/* UNIDADES DE MEDIDA */}
+          <div>
+
+            <button
+              className="sidebar-parent"
+              data-bs-toggle="collapse"
+              data-bs-target="#menuUnidadesMedida"
+            >
+              <div className="sidebar-parent-content">
+                <i className="bi bi-rulers me-2"></i>
+                <span>Unidad Medida</span>
+              </div>
+
+              <i className="bi bi-chevron-down sidebar-chevron"></i>
+            </button>
+
+            <div className="collapse sidebar-submenu" id="menuUnidadesMedida">
+
+              <NavLink to="/unidades-medida" className="sidebar-link">
+                <i className="bi bi-list-ul me-2"></i>
+                Lista Unidades
+              </NavLink>
+
+              <NavLink to="/unidades-medida/nuevo" className="sidebar-link">
+                <i className="bi bi-plus-circle me-2"></i>
+                Nueva Unidad
+              </NavLink>
+
+            </div>
+
+          </div>
+
+      {/* Materiales (Nivel 2) */}
+      <div>
+        <button
+          className="sidebar-parent sidebar-parent--sub"
+          data-bs-toggle="collapse"
+          data-bs-target="#menuMateriales"
+        >
+          <div className="sidebar-parent-content">
+            <i className="bi bi-layers me-2"></i>
+            <span>Materiales</span>
+          </div>
+          <i className="bi bi-chevron-down sidebar-chevron"></i>
+        </button>
+
+        <div className="collapse sidebar-submenu" id="menuMateriales">
+          <NavLink to="/materiales" className="sidebar-link sidebar-link--sub">
+            <i className="bi bi-list-ul me-2"></i>
+            Lista de Materiales
+          </NavLink>
+          <NavLink to="/materiales/nuevo" className="sidebar-link sidebar-link--sub">
+            <i className="bi bi-plus-circle me-2"></i>
+            Nuevo Material
+          </NavLink>
+        </div>
+      </div>
+
+       {/* Tipos Producto (Nivel 2) */}
+      <div>
+        <button
+          className="sidebar-parent sidebar-parent--sub"
+          data-bs-toggle="collapse"
+          data-bs-target="#menuTiposProd"
+        >
+          <div className="sidebar-parent-content">
+            <i className="bi bi-layers me-2"></i>
+            <span>Tipo Productos</span>
+          </div>
+          <i className="bi bi-chevron-down sidebar-chevron"></i>
+        </button>
+
+        <div className="collapse sidebar-submenu" id="menuTiposProd">
+          <NavLink to="/tipos-producto" className="sidebar-link sidebar-link--sub">
+            <i className="bi bi-list-ul me-2"></i>
+            Lista Tipos de Productos
+          </NavLink>
+          <NavLink to="/tipos-producto/nuevo" className="sidebar-link sidebar-link--sub">
+            <i className="bi bi-plus-circle me-2"></i>
+            Nuevo Tipo de producto
+          </NavLink>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
 
         {/* Insumos */}
         <NavLink
@@ -283,37 +452,7 @@ export default function Sidebar() {
         </NavLink>
 
 
-        {/* UNIDADES DE MEDIDA */}
-        <div>
-
-          <button
-            className="sidebar-parent"
-            data-bs-toggle="collapse"
-            data-bs-target="#menuUnidadesMedida"
-          >
-            <div className="sidebar-parent-content">
-              <i className="bi bi-rulers me-2"></i>
-              <span>Unidades de Medida</span>
-            </div>
-
-            <i className="bi bi-chevron-down sidebar-chevron"></i>
-          </button>
-
-          <div className="collapse sidebar-submenu" id="menuUnidadesMedida">
-
-            <NavLink to="/unidades-medida" className="sidebar-link">
-              <i className="bi bi-list-ul me-2"></i>
-              Lista Unidades
-            </NavLink>
-
-            <NavLink to="/unidades-medida/nuevo" className="sidebar-link">
-              <i className="bi bi-plus-circle me-2"></i>
-              Nueva Unidad
-            </NavLink>
-
-          </div>
-
-        </div>
+        
 
 
         {/* Nueva Cotización */}
@@ -346,6 +485,8 @@ export default function Sidebar() {
           <i className="bi bi-list-ul me-2"></i>
           Cotizaciones
         </NavLink>
+
+
 
       </nav>
 

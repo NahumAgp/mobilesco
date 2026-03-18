@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.mobilesco.mobilesco_back.config.ApiPaths;
 import com.mobilesco.mobilesco_back.dto.Categoria.CategoriaCreateDTO;
 import com.mobilesco.mobilesco_back.dto.Categoria.CategoriaResponseDTO;
 import com.mobilesco.mobilesco_back.dto.Categoria.CategoriaUpdateDTO;
@@ -23,7 +24,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
 @RestController
-@RequestMapping("/api/categorias")
+@RequestMapping(ApiPaths.CATEGORIA)
 @RequiredArgsConstructor
 public class CategoriaController {
 

@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.mobilesco.mobilesco_back.config.ApiPaths;
 import com.mobilesco.mobilesco_back.dto.Material.MaterialCreateDTO;
 import com.mobilesco.mobilesco_back.dto.Material.MaterialResponseDTO;
 import com.mobilesco.mobilesco_back.dto.Material.MaterialUpdateDTO;
@@ -23,7 +24,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
 @RestController
-@RequestMapping("/api/materiales")
+@RequestMapping(ApiPaths.MATERIALES)
 @RequiredArgsConstructor
 public class MaterialController {
 

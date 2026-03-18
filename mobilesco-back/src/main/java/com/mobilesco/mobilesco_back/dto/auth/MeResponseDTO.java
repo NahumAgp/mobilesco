@@ -17,6 +17,7 @@ public class MeResponseDTO {
     private String nombre;
     private String apellidoPaterno;
     private String apellidoMaterno;
+    private String telefono;
     private String fotoUrl;
 
 }

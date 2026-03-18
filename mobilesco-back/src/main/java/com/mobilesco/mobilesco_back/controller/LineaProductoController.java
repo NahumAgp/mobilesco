@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.mobilesco.mobilesco_back.config.ApiPaths;
 import com.mobilesco.mobilesco_back.dto.LineaProducto.LineaProductoCreateDTO;
 import com.mobilesco.mobilesco_back.dto.LineaProducto.LineaProductoResponseDTO;
 import com.mobilesco.mobilesco_back.dto.LineaProducto.LineaProductoUpdateDTO;
@@ -21,7 +22,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
 @RestController
-@RequestMapping("/api/lineas-producto")
+@RequestMapping(ApiPaths.LINEA_PRODUCTO)
 @RequiredArgsConstructor
 public class LineaProductoController {
 

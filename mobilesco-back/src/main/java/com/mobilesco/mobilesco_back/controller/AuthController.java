@@ -107,6 +107,7 @@ public class AuthController {
             dto.setNombre(emp.getNombre());
             dto.setApellidoPaterno(emp.getApellidoPaterno());
             dto.setApellidoMaterno(emp.getApellidoMaterno());
+            dto.setTelefono(emp.getTelefono());
             dto.setFotoUrl(emp.getFotoUrl());
         }
 

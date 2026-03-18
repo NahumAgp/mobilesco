@@ -1,14 +1,13 @@
-// src/pages/Proveedores/useProveedores.js
+// src/pages/LineaProducto/useLineasProducto.js
 import { useEffect, useState } from "react";
 import {
-  obtenerProveedores,
-  eliminarProveedor as eliminarService
-} from "../../services/proveedores.js";
+  obtenerLineasProducto,
+  eliminarLineaProducto as eliminarService
+} from "../../services/lineaProducto.js";
 
+export function useLineasProducto() {
 
-export function useProveedores() {
-
-  const [proveedores, setProveedores] = useState([]);
+  const [lineasProducto, setLineasProducto] = useState([]);
   const [loadingLista, setLoadingLista] = useState(false);
   const [error, setError] = useState("");
 
@@ -17,18 +16,18 @@ export function useProveedores() {
       setLoadingLista(true);
       setError("");
 
-      const data = await obtenerProveedores();
+      const data = await obtenerLineasProducto();
 
       // 🔥 IMPORTANTE
       // Si backend devuelve paginado
       if (data.content) {
-        setProveedores(data.content);
+        setLineasProducto(data.content);
       } else {
-        setProveedores(data);
+        setLineasProducto(data);
       }
 
     } catch (e) {
-      setError("Error cargando proveedores");
+      setError("Error cargando líneas de producto");
     } finally {
       setLoadingLista(false);
     }
@@ -38,15 +37,15 @@ export function useProveedores() {
     cargar();
   }, []);
 
-  async function eliminarProveedor(id) {
+  async function eliminarLineaProducto(id) {
     await eliminarService(id);
     await cargar();
   }
 
   return {
-    proveedores,
+    lineasProducto,
     loadingLista,
     error,
-    eliminarProveedor
+    eliminarLineaProducto
   };
 }

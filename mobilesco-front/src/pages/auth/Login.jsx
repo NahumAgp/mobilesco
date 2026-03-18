@@ -47,8 +47,6 @@ export default function Login() {
         throw new Error("Token no recibido");
       }
 
-      localStorage.setItem("token", response.accessToken);
-      localStorage.setItem("refreshToken", response.refreshToken);
 
       const user = await getCurrentUser();
 

@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.mobilesco.mobilesco_back.config.ApiPaths;
 import com.mobilesco.mobilesco_back.dto.Familia.FamiliaCreateDTO;
 import com.mobilesco.mobilesco_back.dto.Familia.FamiliaResponseDTO;
 import com.mobilesco.mobilesco_back.dto.Familia.FamiliaUpdateDTO;
@@ -20,7 +21,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
 @RestController
-@RequestMapping("/api/familias")
+@RequestMapping(ApiPaths.FAMILIAS)
 @RequiredArgsConstructor
 public class FamiliaController {
 
