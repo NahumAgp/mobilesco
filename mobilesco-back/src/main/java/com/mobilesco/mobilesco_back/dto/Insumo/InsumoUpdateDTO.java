@@ -21,6 +21,11 @@ public class InsumoUpdateDTO {
     
     @Positive(message = "El stock mínimo debe ser mayor a 0")
     private Double stockMinimo;
+
+    //Ubicacion del insumo
+    private String ubicacion;
+    private String fila;
+    private String columna;
     
     private Double stockActual;
     

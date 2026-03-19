@@ -3,8 +3,6 @@ import { Navigate, Route, Routes } from "react-router-dom";
 import AppLayout from "./layout/AppLayout";
 
 import Tablero from "./pages/Tablero";
-import Productos from "./pages/Productos";
-import Insumos from "./pages/Insumos.jsx";
 import UnidadMedida from "./pages/UnidadMedida.jsx";
 import NuevaCotizacion from "./pages/NuevaCotizacion.jsx";
 import Cotizacion from "./pages/Cotizaciones.jsx";
@@ -35,6 +33,24 @@ import MaterialesPage from "./pages/Materiales/MaterialesPage.jsx";
 import MaterialFormPage from "./pages/Materiales/MaterialFormPage.jsx";
 import TiposProductoPage from"./pages/TiposProducto/TiposProductoPage.jsx";
 import TiposProductoFromPage from"./pages/TiposProducto/TipoProductoFormPage.jsx";
+import  InsumosPage from "./pages/Insumos/InsumosPage.jsx";
+import  InsumosFormPage from "./pages/Insumos/InsumoFormPage.jsx";
+import CentrosTrabajoPage from "./pages/CentrosTrabajo/CentrosTrabajoPage.jsx";
+import CentrosTrabajoFormPage from "./pages/CentrosTrabajo/CentroTrabajoFormPage.jsx";
+
+import OperacionesPage from "./pages/Operaciones/OperacionesPage.jsx";
+import OperacionesFormPage from "./pages/Operaciones/OperacionFormPage.jsx";
+
+import ComprasPage from "./pages/Compras/ComprasPage.jsx";
+import ComprasFormPage from "./pages/Compras/CompraFormPage.jsx";
+
+import KardexPage from "./pages/Kardex/KardexPage"; 
+import CompraDetallePage from "./pages/Compras/CompraDetallePage.jsx";
+
+import ProductosPage from "./pages/Productos/ProductosPage";
+import ProductoFormPage from "./pages/Productos/ProductoFormPage";
+import ProductoDetallePage from "./pages/Productos/ProductoDetallePage";
+import ProductoBOMPage from "./pages/Productos/ProductoBOMPage";
 
 export default function App() {
 
@@ -59,9 +75,6 @@ export default function App() {
 
         <Route path="/tablero" element={<Tablero />} />
 
-        <Route path="/productos" element={<Productos />} />
-
-        <Route path="/insumos" element={<Insumos />} />
 
         <Route path="/unidadMedida" element={<UnidadMedida />} />
 
@@ -111,7 +124,41 @@ export default function App() {
         <Route path="/tipos-producto/nuevo" element={<TiposProductoFromPage />} />
         <Route path="/tipos-producto/:id" element={<TiposProductoFromPage />} />
 
+         {/* Inusmos */}
+        <Route path="/insumos" element={<InsumosPage />} />
+        <Route path="/insumos/nuevo" element={<InsumosFormPage />} />
+        <Route path="/insumos/:id" element={<InsumosFormPage />} />
+
+         {/* Centros de Trabajo */}
+        <Route path="/centros-trabajo" element={<CentrosTrabajoPage />} />
+        <Route path="/centros-trabajo/nuevo" element={<CentrosTrabajoFormPage />} />
+        <Route path="/centros-trabajo/:id" element={<CentrosTrabajoFormPage />} />
+
+        {/* Operaciones */}
+        <Route path="/operaciones" element={<OperacionesPage />} />
+        <Route path="/operaciones/nuevo" element={<OperacionesFormPage />} />
+        <Route path="/operaciones/:id" element={<OperacionesFormPage />} />
+
+         {/* Compras */}
+        <Route path="/compras" element={<ComprasPage />} />
+        <Route path="/compras/nueva" element={<ComprasFormPage />} />
+        <Route path="/compras/:id" element={<ComprasFormPage />} />
+        <Route path="/compras/:id/ver" element={<CompraDetallePage />} /> {/* 👈 ESTA ES LA QUE FALTA 
+
+         {/*Kardex */}
+        <Route path="/kardex" element={<KardexPage />} />
+        <Route path="/kardex/insumo/:insumoId" element={<KardexPage />} />
+        
+        {/* Productos */}
+        <Route path="/productos" element={<ProductosPage />} />
+        <Route path="/productos/nuevo" element={<ProductoFormPage />} />
+        <Route path="/productos/:id" element={<ProductoFormPage />} />
+        <Route path="/productos/:id/ver" element={<ProductoDetallePage />} />
+        <Route path="/productos/:id/bom" element={<ProductoBOMPage />} />
+
       </Route>
+
+      
 
       {/* 404 */}
       <Route path="*" element={<Navigate to="/login" replace />} />

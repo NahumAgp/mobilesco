@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.mobilesco.mobilesco_back.config.ApiPaths;
 import com.mobilesco.mobilesco_back.dto.Operacion.OperacionCreateDTO;
 import com.mobilesco.mobilesco_back.dto.Operacion.OperacionResponseDTO;
 import com.mobilesco.mobilesco_back.dto.Operacion.OperacionUpdateDTO;
@@ -26,7 +27,7 @@ import lombok.RequiredArgsConstructor;
 
 @Tag(name = "Operaciones", description = "Catálogo de operaciones de fabricación (Mano de Obra Directa)")
 @RestController
-@RequestMapping("/api/operaciones")
+@RequestMapping(ApiPaths.OPERACION)
 @RequiredArgsConstructor
 public class OperacionController {
 

@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.mobilesco.mobilesco_back.config.ApiPaths;
 import com.mobilesco.mobilesco_back.dto.Producto.ProductoCreateDTO;
 import com.mobilesco.mobilesco_back.dto.Producto.ProductoInsumoCreateDTO;
 import com.mobilesco.mobilesco_back.dto.Producto.ProductoInsumoListaDTO;
@@ -30,7 +31,7 @@ import lombok.RequiredArgsConstructor;
 
 @Tag(name = "Productos", description = "CRUD y gestión de productos terminados")
 @RestController
-@RequestMapping("/api/productos")
+@RequestMapping(ApiPaths.PRODUCTOS)
 @RequiredArgsConstructor
 public class ProductoController {
 

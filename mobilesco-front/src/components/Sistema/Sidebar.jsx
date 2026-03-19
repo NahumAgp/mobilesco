@@ -432,13 +432,158 @@ export default function Sidebar() {
         </div>
       </div>
 
+      {/* PRODUCTOS */}
+<NavLink
+  to="/productos"
+  style={({ isActive }) => ({
+    color: "#fff",
+    textDecoration: "none",
+    padding: "10px 12px",
+    borderRadius: 10,
+    background: isActive ? "#1b7f72" : "transparent",
+    display: "flex",
+    alignItems: "center"
+  })}
+>
+  <i className="bi bi-box-seam me-2"></i>
+  Productos
+</NavLink>
+
     </div>
   </div>
 
 
-        {/* Insumos */}
+         {/* INSUMOS */}
+        <div>
+
+          <button
+            className="sidebar-parent"
+            data-bs-toggle="collapse"
+            data-bs-target="#menuInsumos"
+          >
+            <div className="sidebar-parent-content">
+              <i className="bi bi-truck me-2"></i>
+              <span>Insumos</span>
+            </div>
+
+            <i className="bi bi-chevron-down sidebar-chevron"></i>
+          </button>
+
+          <div className="collapse sidebar-submenu" id="menuInsumos">
+
+            <NavLink to="/insumos" className="sidebar-link">
+              <i className="bi bi-list-ul me-2"></i>
+              Lista Insumos
+            </NavLink>
+
+            <NavLink to="/insumos/nuevo" className="sidebar-link">
+              <i className="bi bi-plus-circle me-2"></i>
+              Nuevo Insumo
+            </NavLink>
+
+          </div>
+
+        </div>
+
+          {/* Centros de Trabajo */}
+        <div>
+
+          <button
+            className="sidebar-parent"
+            data-bs-toggle="collapse"
+            data-bs-target="#menuCentrosT"
+          >
+            <div className="sidebar-parent-content">
+              <i className="bi bi-truck me-2"></i>
+              <span>Centros de Trabajo</span>
+            </div>
+
+            <i className="bi bi-chevron-down sidebar-chevron"></i>
+          </button>
+
+          <div className="collapse sidebar-submenu" id="menuCentrosT">
+
+            <NavLink to="/centros-trabajo" className="sidebar-link">
+              <i className="bi bi-list-ul me-2"></i>
+              Lista Centros de trabajo
+            </NavLink>
+
+            <NavLink to="/centros-trabajo/nuevo" className="sidebar-link">
+              <i className="bi bi-plus-circle me-2"></i>
+              Nuevo Centros de trabajo
+            </NavLink>
+
+          </div>
+
+        </div>
+
+         {/* OPERACIONES */}
+        <div>
+
+          <button
+            className="sidebar-parent"
+            data-bs-toggle="collapse"
+            data-bs-target="#menuOperaciones"
+          >
+            <div className="sidebar-parent-content">
+              <i className="bi bi-truck me-2"></i>
+              <span>Operaciones</span>
+            </div>
+
+            <i className="bi bi-chevron-down sidebar-chevron"></i>
+          </button>
+
+          <div className="collapse sidebar-submenu" id="menuOperaciones">
+
+            <NavLink to="/operaciones" className="sidebar-link">
+              <i className="bi bi-list-ul me-2"></i>
+              Lista Operaciones
+            </NavLink>
+
+            <NavLink to="/operaciones/nuevo" className="sidebar-link">
+              <i className="bi bi-plus-circle me-2"></i>
+              Nueva Operacion
+            </NavLink>
+
+          </div>
+
+        </div>
+
+        {/* Compras */}
+        <div>
+
+          <button
+            className="sidebar-parent"
+            data-bs-toggle="collapse"
+            data-bs-target="#menuCompras"
+          >
+            <div className="sidebar-parent-content">
+              <i className="bi bi-truck me-2"></i>
+              <span>Compras</span>
+            </div>
+
+            <i className="bi bi-chevron-down sidebar-chevron"></i>
+          </button>
+
+          <div className="collapse sidebar-submenu" id="menuCompras">
+
+            <NavLink to="/compras" className="sidebar-link">
+              <i className="bi bi-list-ul me-2"></i>
+              Lista de Compras
+            </NavLink>
+
+            <NavLink to="/compras/nueva" className="sidebar-link">
+              <i className="bi bi-plus-circle me-2"></i>
+              Registrar Compra
+            </NavLink>
+
+          </div>
+
+        </div>
+
+           {/* KARDEX */}
         <NavLink
-          to="/insumos"
+          to="/kardex"
           style={({ isActive }) => ({
             color: "#fff",
             textDecoration: "none",
@@ -447,10 +592,10 @@ export default function Sidebar() {
             background: isActive ? "#1b7f72" : "transparent",
           })}
         >
-          <i className="bi bi-tools me-2"></i>
-          Insumos
+          <i className="bi bi-plus-circle me-2"></i>
+          kardex
         </NavLink>
-
+       
 
         
 

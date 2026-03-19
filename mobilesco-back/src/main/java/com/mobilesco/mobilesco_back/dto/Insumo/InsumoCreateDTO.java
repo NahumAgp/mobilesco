@@ -18,6 +18,11 @@ public class InsumoCreateDTO {
     
     @NotNull(message = "La unidad de medida es obligatoria")
     private Long unidadMedidaId;  // Unidad de CONSUMO
+
+    //Ubicacion del insumo
+    private String ubicacion;
+    private String fila;
+    private String columna;
     
     @Positive(message = "El stock mínimo debe ser mayor a 0")
     private Double stockMinimo;

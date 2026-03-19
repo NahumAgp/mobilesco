@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.mobilesco.mobilesco_back.config.ApiPaths;
 import com.mobilesco.mobilesco_back.dto.CentroTrabajo.CentroTrabajoCreateDTO;
 import com.mobilesco.mobilesco_back.dto.CentroTrabajo.CentroTrabajoResponseDTO;
 import com.mobilesco.mobilesco_back.dto.CentroTrabajo.CentroTrabajoUpdateDTO;
@@ -26,7 +27,7 @@ import lombok.RequiredArgsConstructor;
 
 @Tag(name = "Centros de Trabajo", description = "Catálogo de centros de trabajo (máquinas y estaciones)")
 @RestController
-@RequestMapping("/api/centros-trabajo")
+@RequestMapping(ApiPaths.CENTRO_TRABAJO)
 @RequiredArgsConstructor
 public class CentroTrabajoController {
 

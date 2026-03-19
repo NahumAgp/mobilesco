@@ -44,6 +44,12 @@ public class InsumoModel {
     @Column(name = "descripcion", length = 500)
     private String descripcion;
 
+    //Ubicacion del insumo
+    private String ubicacion;
+    private String fila;
+    private String columna;
+
+
     // 📌 UNIDAD DE MEDIDA (siempre en unidad de CONSUMO)
     @ManyToOne
     @JoinColumn(name = "unidad_medida_id", nullable = false, 

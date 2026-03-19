@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.mobilesco.mobilesco_back.config.ApiPaths;
 import com.mobilesco.mobilesco_back.dto.Compra.CompraCreateDTO;
 import com.mobilesco.mobilesco_back.dto.Compra.CompraResponseDTO;
 import com.mobilesco.mobilesco_back.dto.Compra.CompraUpdateDTO;
@@ -28,7 +29,7 @@ import lombok.RequiredArgsConstructor;
 
 @Tag(name = "Compras", description = "Gestión de compras de insumos")
 @RestController
-@RequestMapping("/api/compras")
+@RequestMapping(ApiPaths.COMPRAS)
 @RequiredArgsConstructor
 public class CompraController {
 

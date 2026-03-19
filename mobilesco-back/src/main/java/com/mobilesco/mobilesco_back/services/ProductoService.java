@@ -19,7 +19,6 @@ import com.mobilesco.mobilesco_back.models.ProductoInsumoModel;
 import com.mobilesco.mobilesco_back.models.ProductoModel;
 import com.mobilesco.mobilesco_back.models.TipoProductoModel;
 import com.mobilesco.mobilesco_back.repositories.CategoriaRepository;
-import com.mobilesco.mobilesco_back.repositories.InsumoRepository;
 import com.mobilesco.mobilesco_back.repositories.LineaProductoRepository;
 import com.mobilesco.mobilesco_back.repositories.MaterialRepository;
 import com.mobilesco.mobilesco_back.repositories.ProductoInsumoRepository;
@@ -41,8 +40,6 @@ public class ProductoService {
     private final MaterialRepository materialRepository;
     private final ProductoInsumoRepository productoInsumoRepository;
     private final KardexService kardexService;
-    private final InsumoRepository insumoRepository;
-
     @Transactional
     public ProductoResponseDTO crear(ProductoCreateDTO dto) {
         log.info("Creando nuevo producto con SKU: {}", dto.getSku());

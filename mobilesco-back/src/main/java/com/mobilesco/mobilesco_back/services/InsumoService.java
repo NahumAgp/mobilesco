@@ -67,6 +67,9 @@ public class InsumoService {
         // Actualizar campos
         insumo.setNombre(dto.getNombre());
         insumo.setDescripcion(dto.getDescripcion());
+        insumo.setUbicacion(dto.getUbicacion());
+        insumo.setFila(dto.getFila());
+        insumo.setColumna(dto.getColumna());
         
         if (dto.getStockMinimo() != null) {
             insumo.setStockMinimo(dto.getStockMinimo());
@@ -119,6 +122,9 @@ public InsumoResponseDTO crear(InsumoCreateDTO dto) {
     InsumoModel insumo = InsumoModel.builder()
             .nombre(dto.getNombre())
             .descripcion(dto.getDescripcion())
+            .ubicacion(dto.getUbicacion())
+            .fila(dto.getFila())
+            .columna(dto.getColumna())
             .unidadMedida(unidadMedida)
             .stockMinimo(stockMinimo)  // ✅ Ya es Double, no hay unboxing
             .stockActual(0.0)           // ✅ Double literal
@@ -254,6 +260,9 @@ public InsumoResponseDTO crear(InsumoCreateDTO dto) {
                 .id(insumo.getId())
                 .nombre(insumo.getNombre())
                 .descripcion(insumo.getDescripcion())
+                .ubicacion(insumo.getUbicacion())
+                .fila(insumo.getFila())
+                .columna(insumo.getColumna())   
                 .unidadMedidaId(insumo.getUnidadMedida().getId())
                 .unidadMedidaNombre(insumo.getUnidadMedida().getNombre())
                 .unidadMedidaSimbolo(insumo.getUnidadMedida().getSimbolo())

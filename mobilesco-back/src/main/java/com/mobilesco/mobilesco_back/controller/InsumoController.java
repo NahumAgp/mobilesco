@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.mobilesco.mobilesco_back.config.ApiPaths;
 import com.mobilesco.mobilesco_back.dto.Insumo.InsumoCreateDTO;
 import com.mobilesco.mobilesco_back.dto.Insumo.InsumoResponseDTO;
 import com.mobilesco.mobilesco_back.dto.Insumo.InsumoUpdateDTO;
@@ -26,7 +27,7 @@ import lombok.RequiredArgsConstructor;
 
 @Tag(name = "Insumos", description = "CRUD y gestión de insumos (materia prima)")
 @RestController
-@RequestMapping("/api/insumos")
+@RequestMapping(ApiPaths.INSUMOS)
 @RequiredArgsConstructor
 public class InsumoController {
 
