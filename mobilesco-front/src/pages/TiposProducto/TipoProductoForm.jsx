@@ -174,7 +174,7 @@ export default function TipoProductoForm({
                   className={inputClass("nombre")} 
                   value={formData.nombre} 
                   onChange={handleChange} 
-                  placeholder="Ej: Smartphones, Laptops, Tablets..."
+                  placeholder="Ej: Silla, Con Paleta, Plegable..."
                 />
                 <div className="invalid-feedback">{erroresBackend.nombre || erroresExternos.nombre}</div>
               </div>

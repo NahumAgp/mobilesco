@@ -189,7 +189,7 @@ export default function InsumoForm({
                   className={inputClass("nombre")} 
                   value={formData.nombre} 
                   onChange={handleChange} 
-                  placeholder="Ej: Harina, Acero, Tela..."
+                  placeholder="Ej:Tornillos, Tubo, Tela..."
                 />
                 <div className="invalid-feedback">{erroresBackend.nombre || erroresExternos.nombre}</div>
               </div>

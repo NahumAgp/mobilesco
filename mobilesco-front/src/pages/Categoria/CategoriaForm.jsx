@@ -157,7 +157,7 @@ export default function CategoriaForm({
           className={inputClass("nombre")} 
           value={formData.nombre} 
           onChange={handleChange} 
-          placeholder="Ej: Smartphones, Tablets, Accesorios..."
+          placeholder="Ej: Primaria, Secundaria..."
         />
         <div className="invalid-feedback">{erroresBackend.nombre || erroresExternos.nombre}</div>
       </div>

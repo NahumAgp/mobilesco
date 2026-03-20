@@ -1,8 +1,11 @@
-// pages/Productos/ProductoDetallePage.jsx
 import { useParams, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
-import { obtenerProductoPorId, calcularCostoProducto } from "../../services/productos.js";
-import { obtenerCostoPromedio } from "../../services/kardex.js";
+import { 
+  obtenerProductoPorId, 
+  obtenerEstructuraCostos,
+  eliminarInsumoDeProducto,
+  eliminarOperacionDeProducto
+} from "../../services/productos.js";
 import Card from "../../components/ui/Card.jsx";
 import Toast from "../../components/ui/Toast.jsx";
 
@@ -10,47 +13,58 @@ export default function ProductoDetallePage() {
   const { id } = useParams();
   const navigate = useNavigate();
   const [producto, setProducto] = useState(null);
-  const [costo, setCosto] = useState(0);
-  const [costosInsumos, setCostosInsumos] = useState({});
+  const [estructuraCostos, setEstructuraCostos] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [toastMessage, setToastMessage] = useState("");
+  const [toastType, setToastType] = useState("success");
 
   useEffect(() => {
-    cargarProducto();
+    cargarTodo();
   }, [id]);
 
-  const cargarProducto = async () => {
+  const cargarTodo = async () => {
     try {
       setLoading(true);
-      const data = await obtenerProductoPorId(id);
-      setProducto(data);
-      
-      // Calcular costo total
-      const costoData = await calcularCostoProducto(id);
-      setCosto(costoData);
-      
-      // Cargar costos individuales de cada insumo
-      if (data.insumos && data.insumos.length > 0) {
-        const costos = {};
-        await Promise.all(
-          data.insumos.map(async (insumo) => {
-            try {
-              const costoUnitario = await obtenerCostoPromedio(insumo.insumoId);
-              costos[insumo.insumoId] = costoUnitario;
-            } catch (error) {
-              console.error(`Error cargando costo del insumo ${insumo.insumoId}:`, error);
-              costos[insumo.insumoId] = 0;
-            }
-          })
-        );
-        setCostosInsumos(costos);
-      }
+      const [productoData, costosData] = await Promise.all([
+        obtenerProductoPorId(id),
+        obtenerEstructuraCostos(id)
+      ]);
+      setProducto(productoData);
+      setEstructuraCostos(costosData);
     } catch (e) {
       setError("Error cargando el producto");
       console.error(e);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleEliminarInsumo = async (insumoId) => {
+    if (!window.confirm("¿Eliminar este insumo de la lista de materiales?")) return;
+    
+    try {
+      await eliminarInsumoDeProducto(id, insumoId);
+      setToastType("success");
+      setToastMessage("Insumo eliminado correctamente");
+      cargarTodo(); // Recargar
+    } catch (error) {
+      setToastType("danger");
+      setToastMessage("Error al eliminar insumo");
+    }
+  };
+
+  const handleEliminarOperacion = async (operacionId) => {
+    if (!window.confirm("¿Eliminar esta operación del proceso?")) return;
+    
+    try {
+      await eliminarOperacionDeProducto(id, operacionId);
+      setToastType("success");
+      setToastMessage("Operación eliminada correctamente");
+      cargarTodo(); // Recargar
+    } catch (error) {
+      setToastType("danger");
+      setToastMessage("Error al eliminar operación");
     }
   };
 
@@ -62,15 +76,12 @@ export default function ProductoDetallePage() {
     }).format(value || 0);
   };
 
-  // Calcular subtotal por insumo
-  const calcularSubtotal = (insumo) => {
-    const costoUnitario = costosInsumos[insumo.insumoId] || 0;
-    const cantidadConDesperdicio = insumo.cantidad * (1 + (insumo.desperdicioPorcentaje || 0) / 100);
-    return cantidadConDesperdicio * costoUnitario;
+  const formatTime = (minutos) => {
+    if (!minutos) return '-';
+    const horas = Math.floor(minutos / 60);
+    const mins = minutos % 60;
+    return horas > 0 ? `${horas}h ${mins}min` : `${mins}min`;
   };
-
-  // Calcular total de BOM
-  const totalBOM = producto?.insumos?.reduce((sum, insumo) => sum + calcularSubtotal(insumo), 0) || 0;
 
   if (loading) {
     return (
@@ -94,13 +105,15 @@ export default function ProductoDetallePage() {
   }
 
   return (
-    <div className="container mt-4">
-      <Toast message={toastMessage} type="success" onClose={() => setToastMessage("")} />
+    <div className="container-fluid mt-4">
+      <Toast message={toastMessage} type={toastType} onClose={() => setToastMessage("")} />
       
+      {/* Header */}
       <div className="d-flex align-items-center justify-content-between mb-3">
         <h3>
           <i className="bi bi-box me-2"></i>
-          Producto: {producto.nombre}
+          {producto.nombre}
+          <small className="text-muted ms-2">SKU: {producto.sku}</small>
         </h3>
         <div>
           <button 
@@ -117,29 +130,67 @@ export default function ProductoDetallePage() {
         </div>
       </div>
 
-      <div className="row">
-        <div className="col-md-4">
+      {/* Resumen de costos */}
+      <div className="row mb-4">
+        <div className="col-md-3">
+          <Card>
+            <div className="text-center">
+              <h6 className="text-muted mb-2">Costo Materiales</h6>
+              <h3 className="text-primary">{formatCurrency(estructuraCostos?.costoInsumos || 0)}</h3>
+            </div>
+          </Card>
+        </div>
+        <div className="col-md-3">
+          <Card>
+            <div className="text-center">
+              <h6 className="text-muted mb-2">Costo Operaciones</h6>
+              <h3 className="text-success">{formatCurrency(estructuraCostos?.costoOperaciones || 0)}</h3>
+            </div>
+          </Card>
+        </div>
+        <div className="col-md-3">
+          <Card>
+            <div className="text-center">
+              <h6 className="text-muted mb-2">Costo Total</h6>
+              <h3 className="fw-bold text-dark">{formatCurrency(estructuraCostos?.costoTotal || 0)}</h3>
+            </div>
+          </Card>
+        </div>
+        <div className="col-md-3">
+          <Card>
+            <div className="text-center">
+              <h6 className="text-muted mb-2">Estado</h6>
+              <h5>
+                <span className={`badge bg-${producto.activo ? 'success' : 'secondary'}`}>
+                  {producto.activo ? 'ACTIVO' : 'INACTIVO'}
+                </span>
+              </h5>
+            </div>
+          </Card>
+        </div>
+      </div>
+
+      {/* Dos columnas: Información General y Clasificación */}
+      <div className="row mb-4">
+        <div className="col-md-6">
           <Card title="Información General" icon="bi-info-circle">
             <table className="table table-sm">
               <tbody>
-                <tr><th>SKU:</th><td><span className="badge bg-secondary">{producto.sku}</span></td></tr>
+                <tr><th style={{width: '30%'}}>SKU:</th><td><span className="badge bg-secondary">{producto.sku}</span></td></tr>
                 <tr><th>Nombre:</th><td>{producto.nombre}</td></tr>
                 <tr><th>Descripción:</th><td>{producto.descripcion || '-'}</td></tr>
-                <tr><th>Estado:</th><td>
-                  <span className={`badge bg-${producto.activo ? 'success' : 'secondary'}`}>
-                    {producto.activo ? 'Activo' : 'Inactivo'}
-                  </span>
-                </td></tr>
+                <tr><th>Características:</th><td>{producto.caracteristicas || '-'}</td></tr>
+                <tr><th>Dimensiones:</th><td>{producto.dimensiones || '-'}</td></tr>
+                <tr><th>Peso:</th><td>{producto.pesoKg ? `${producto.pesoKg} kg` : '-'}</td></tr>
               </tbody>
             </table>
           </Card>
         </div>
-
-        <div className="col-md-4">
+        <div className="col-md-6">
           <Card title="Clasificación" icon="bi-tags">
             <table className="table table-sm">
               <tbody>
-                <tr><th>Tipo:</th><td>{producto.tipoProductoNombre}</td></tr>
+                <tr><th style={{width: '30%'}}>Tipo:</th><td><span className="badge bg-info">{producto.tipoProductoNombre}</span></td></tr>
                 <tr><th>Línea:</th><td>{producto.lineaNombre || '-'}</td></tr>
                 <tr><th>Categoría:</th><td>{producto.categoriaNombre || '-'}</td></tr>
                 <tr><th>Material:</th><td>{producto.materialNombre || '-'}</td></tr>
@@ -147,101 +198,152 @@ export default function ProductoDetallePage() {
             </table>
           </Card>
         </div>
-
-        <div className="col-md-4">
-          <Card title="Costos" icon="bi-calculator">
-            <table className="table table-sm">
-              <tbody>
-                <tr><th>Costo estimado:</th><td className="fw-bold text-primary fs-5">{formatCurrency(costo)}</td></tr>
-                <tr><th>Costo BOM:</th><td className="fw-bold text-success">{formatCurrency(totalBOM)}</td></tr>
-                <tr><th>Diferencia:</th><td className={totalBOM > 0 ? (totalBOM > costo ? 'text-danger' : 'text-success') : ''}>
-                  {formatCurrency(totalBOM - costo)}
-                </td></tr>
-              </tbody>
-            </table>
-          </Card>
-        </div>
       </div>
 
-      <Card title="Lista de Materiales (BOM)" icon="bi-list-check">
-        {producto.insumos && producto.insumos.length > 0 ? (
-          <>
-            <div className="table-responsive">
-              <table className="table">
-                <thead className="table-light">
-                  <tr>
-                    <th>Insumo</th>
-                    <th className="text-end">Cantidad</th>
-                    <th>Unidad</th>
-                    <th className="text-end">% Desp.</th>
-                    <th className="text-end">Cantidad Total</th>
-                    <th className="text-end">Costo Unitario</th>
-                    <th className="text-end">Subtotal</th>
-                    <th>Observaciones</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {producto.insumos.map((insumo) => {
-                    const costoUnitario = costosInsumos[insumo.insumoId] || 0;
-                    const cantidadConDesperdicio = insumo.cantidad * (1 + (insumo.desperdicioPorcentaje || 0) / 100);
-                    const subtotal = cantidadConDesperdicio * costoUnitario;
-                    
-                    return (
-                      <tr key={insumo.id}>
-                        <td>
-                          <span className="fw-semibold">{insumo.insumoNombre}</span>
-                          <button 
-                            className="btn btn-link btn-sm p-0 ms-2"
-                            onClick={() => navigate(`/insumos/${insumo.insumoId}`)}
-                            title="Ver insumo"
-                          >
-                            <i className="bi bi-box-arrow-up-right"></i>
-                          </button>
-                        </td>
-                        <td className="text-end">{insumo.cantidad.toFixed(2)}</td>
-                        <td>{insumo.insumoUnidad}</td>
-                        <td className="text-end">{insumo.desperdicioPorcentaje?.toFixed(2) || '0.00'}%</td>
-                        <td className="text-end fw-bold">{cantidadConDesperdicio.toFixed(2)}</td>
-                        <td className="text-end text-info">{formatCurrency(costoUnitario)}</td>
-                        <td className="text-end text-primary">{formatCurrency(subtotal)}</td>
-                        <td><small className="text-muted">{insumo.observaciones || '-'}</small></td>
-                      </tr>
-                    );
-                  })}
-                </tbody>
-                <tfoot className="table-light">
-                  <tr>
-                    <td colSpan="6" className="text-end fw-bold">TOTAL BOM:</td>
-                    <td className="text-end fw-bold text-success fs-5">{formatCurrency(totalBOM)}</td>
-                    <td></td>
-                  </tr>
-                </tfoot>
-              </table>
-            </div>
-            <div className="text-end mt-3">
-              <button 
-                className="btn btn-outline-primary"
-                onClick={() => navigate(`/productos/${id}/bom`)}
-              >
-                <i className="bi bi-pencil-square me-1"></i>
-                Editar BOM
-              </button>
-            </div>
-          </>
-        ) : (
-          <div className="text-center py-4">
-            <i className="bi bi-clipboard-x fs-1 d-block mb-3 text-secondary"></i>
-            <p className="text-muted">Este producto no tiene insumos registrados</p>
+      {/* LISTA DE MATERIALES (INSUMOS) */}
+      <Card 
+        title="Lista de Materiales (BOM)" 
+        icon="bi-box-seam"
+        headerClassName="bg-light"
+        footer={
+          <div className="text-end">
             <button 
               className="btn btn-primary"
-              onClick={() => navigate(`/productos/${id}/bom`)}
+              onClick={() => navigate(`/productos/${id}/bom/insumos`)}
             >
               <i className="bi bi-plus-circle me-2"></i>
-              Agregar materiales
+              Agregar / Editar Materiales
             </button>
+          </div>
+        }
+      >
+        {estructuraCostos?.insumos && estructuraCostos.insumos.length > 0 ? (
+          <div className="table-responsive">
+            <table className="table table-hover">
+              <thead className="table-light">
+                <tr>
+                  <th>Insumo</th>
+                  <th className="text-end">Cantidad</th>
+                  <th>Unidad</th>
+                  <th className="text-end">% Desp.</th>
+                  <th className="text-end">Costo Unit.</th>
+                  <th className="text-end">Subtotal</th>
+                  <th></th>
+                </tr>
+              </thead>
+              <tbody>
+                {estructuraCostos.insumos.map((item) => {
+                  const cantidadConDesperdicio = item.cantidad * (1 + (item.desperdicioPorcentaje || 0) / 100);
+                  return (
+                    <tr key={item.id}>
+                      <td>
+                        <span className="fw-semibold">{item.insumoNombre}</span>
+                      </td>
+                      <td className="text-end">{item.cantidad.toFixed(2)}</td>
+                      <td>{item.insumoUnidad}</td>
+                      <td className="text-end">{item.desperdicioPorcentaje?.toFixed(2) || '0.00'}%</td>
+                      <td className="text-end ">{formatCurrency(item.costoUnitario)}</td>
+                      <td className="text-end text-success">{formatCurrency(item.subtotal)}</td>
+                     
+                      <td>
+                        <button
+                          className="btn btn-sm btn-outline-danger"
+                          onClick={() => handleEliminarInsumo(item.insumoId)}
+                          title="Eliminar"
+                        >
+                          <i className="bi bi-trash"></i>
+                        </button>
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+              <tfoot className="table-light">
+                <tr>
+                  <td colSpan="5" className="text-end fw-bold">TOTAL MATERIALES:</td>
+                  <td className="text-end fw-bold  text-success fs-5">
+                    {formatCurrency(estructuraCostos?.costoInsumos || 0)}
+                  </td>
+                  <td colSpan="2"></td>
+                </tr>
+              </tfoot>
+            </table>
+          </div>
+        ) : (
+          <div className="text-center py-4">
+            <i className="bi bi-box-seam fs-1 d-block mb-3 text-secondary"></i>
+            <p className="text-muted">Este producto no tiene materiales registrados</p>
           </div>
         )}
       </Card>
+
+      {/* LISTA DE OPERACIONES */}
+<Card 
+  title="Proceso de Fabricación (Operaciones)" 
+  icon="bi-gear"
+  headerClassName="bg-light mt-4"
+  footer={
+    <div className="text-end">
+      <button 
+        className="btn btn-primary"
+        onClick={() => navigate(`/productos/${id}/bom/operaciones`)}
+      >
+        <i className="bi bi-pencil-square me-2"></i>
+        Editar Operaciones
+      </button>
+    </div>
+  }
+>
+  {producto?.operaciones && producto.operaciones.length > 0 ? (
+    <div className="table-responsive">
+      <table className="table table-hover">
+        <thead className="table-light">
+          <tr>
+            <th>#</th>
+            <th>Operación</th>
+            <th>Centro de Trabajo</th>
+            <th className="text-end">Cantidad</th>
+            <th className="text-end">Tiempo/Op</th>
+            <th className="text-end">Tiempo Total</th>
+            <th className="text-end">Costo</th>
+          </tr>
+        </thead>
+        <tbody>
+          {producto.operaciones
+            .sort((a, b) => (a.orden || 0) - (b.orden || 0))
+            .map((op, index) => (
+              <tr key={op.id}>
+                <td><span className="badge bg-secondary">{index + 1}</span></td>
+                <td>
+                  <span className="fw-semibold">{op.operacionNombre}</span>
+                  <br />
+                  <small className="text-muted">{op.operacionCodigo}</small>
+                </td>
+                <td>{op.centroTrabajoNombre || 'No asignado'}</td>
+                <td className="text-end">{op.cantidad}x</td>
+                <td className="text-end">{op.tiempoOperacion} min</td>
+                <td className="text-end fw-bold">{op.tiempoTotal} min</td>
+                <td className="text-end text-success">{formatCurrency(op.importeActividad)}</td>
+              </tr>
+            ))}
+        </tbody>
+        <tfoot className="table-light">
+          <tr>
+            <td colSpan="6" className="text-end fw-bold">TOTAL OPERACIONES:</td>
+            <td className="text-end fw-bold text-success fs-5">
+              {formatCurrency(producto.operaciones.reduce((sum, op) => sum + (op.importeActividad || 0), 0))}
+            </td>
+          </tr>
+        </tfoot>
+      </table>
+    </div>
+  ) : (
+    <div className="text-center py-4">
+      <i className="bi bi-gear fs-1 d-block mb-3 text-secondary"></i>
+      <p className="text-muted">Este producto no tiene operaciones registradas</p>
+    </div>
+  )}
+</Card>
     </div>
   );
 }

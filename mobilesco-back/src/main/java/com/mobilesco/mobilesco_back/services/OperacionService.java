@@ -1,21 +1,23 @@
 package com.mobilesco.mobilesco_back.services;
 
-import com.mobilesco.mobilesco_back.dto.Operacion.OperacionCreateDTO;
-import com.mobilesco.mobilesco_back.dto.Operacion.OperacionResponseDTO;
-import com.mobilesco.mobilesco_back.dto.Operacion.OperacionUpdateDTO;
-import com.mobilesco.mobilesco_back.models.OperacionModel;
-import com.mobilesco.mobilesco_back.models.CentroTrabajoModel;
-import com.mobilesco.mobilesco_back.repositories.OperacionRepository;
-import com.mobilesco.mobilesco_back.repositories.CentroTrabajoRepository;
-import com.mobilesco.mobilesco_back.exceptions.ResourceNotFoundException;
-import com.mobilesco.mobilesco_back.exceptions.ValidationException;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
+import java.util.List;
+import java.util.stream.Collectors;
+
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
-import java.util.stream.Collectors;
+import com.mobilesco.mobilesco_back.dto.Operacion.OperacionCreateDTO;
+import com.mobilesco.mobilesco_back.dto.Operacion.OperacionResponseDTO;
+import com.mobilesco.mobilesco_back.dto.Operacion.OperacionUpdateDTO;
+import com.mobilesco.mobilesco_back.exceptions.ResourceNotFoundException;
+import com.mobilesco.mobilesco_back.exceptions.ValidationException;
+import com.mobilesco.mobilesco_back.models.CentroTrabajoModel;
+import com.mobilesco.mobilesco_back.models.OperacionModel;
+import com.mobilesco.mobilesco_back.repositories.CentroTrabajoRepository;
+import com.mobilesco.mobilesco_back.repositories.OperacionRepository;
+
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @Service
@@ -25,38 +27,36 @@ public class OperacionService {
     private final OperacionRepository operacionRepository;
     private final CentroTrabajoRepository centroTrabajoRepository;  // Lo crearemos después
 
-    @Transactional
-    public OperacionResponseDTO crear(OperacionCreateDTO dto) {
-        log.info("Creando nueva operación con código: {}", dto.getCodigo());
-
-        // Validar código único
-        if (operacionRepository.existsByCodigoIgnoreCase(dto.getCodigo())) {
-            throw new ValidationException("Ya existe una operación con el código: " + dto.getCodigo());
-        }
-
-        // Buscar centro de trabajo si se proporcionó
-        CentroTrabajoModel centroTrabajo = null;
-        if (dto.getCentroTrabajoId() != null) {
-            centroTrabajo = centroTrabajoRepository.findById(dto.getCentroTrabajoId())
-                    .orElseThrow(() -> new ResourceNotFoundException(
-                            "Centro de trabajo no encontrado con id: " + dto.getCentroTrabajoId()));
-        }
-
-        // Crear entidad
-        OperacionModel operacion = OperacionModel.builder()
-                .codigo(dto.getCodigo())
-                .nombre(dto.getNombre())
-                .descripcion(dto.getDescripcion())
-                .centroTrabajo(centroTrabajo)
-                .costoMinuto(dto.getCostoMinuto())
-                .activo(true)
-                .build();
-
-        OperacionModel saved = operacionRepository.save(operacion);
-        log.info("Operación creada con ID: {}", saved.getId());
-
-        return mapToResponseDTO(saved);
+   @Transactional
+public OperacionResponseDTO crear(OperacionCreateDTO dto) {
+    log.info("Creando nueva operación: {}", dto.getCodigo());
+    
+    // Validar centro de trabajo
+    CentroTrabajoModel centroTrabajo = centroTrabajoRepository.findById(dto.getCentroTrabajoId())
+            .orElseThrow(() -> new ResourceNotFoundException("Centro de trabajo no encontrado"));
+    
+    // 🔴 Si no viene tiempoOperacion, asignar 0 o lanzar error
+    Double tiempoOperacion = dto.getTiempoOperacion();
+    if (tiempoOperacion == null) {
+        throw new ValidationException("El tiempo de operación es requerido");
     }
+    
+    OperacionModel operacion = OperacionModel.builder()
+            .codigo(dto.getCodigo())
+            .nombre(dto.getNombre())
+            .descripcion(dto.getDescripcion())
+            .tiempoOperacion(tiempoOperacion)  // 🔴 AHORA SÍ SE ASIGNA
+            .costoHora(dto.getCostoHora())
+            .costoMinuto(dto.getCostoMinuto())
+            .centroTrabajo(centroTrabajo)
+            .activo(true)
+            .build();
+    
+    OperacionModel saved = operacionRepository.save(operacion);
+    log.info("Operación creada con ID: {}", saved.getId());
+    
+    return mapToResponseDTO(saved);
+}
 
     @Transactional
     public OperacionResponseDTO actualizar(Long id, OperacionUpdateDTO dto) {
@@ -89,6 +89,7 @@ public class OperacionService {
         operacion.setCodigo(dto.getCodigo());
         operacion.setNombre(dto.getNombre());
         operacion.setDescripcion(dto.getDescripcion());
+        operacion.setTiempoOperacion(dto.getTiempoOperacion());
         
         if (dto.getCostoMinuto() != null) {
             operacion.setCostoMinuto(dto.getCostoMinuto());
@@ -168,6 +169,7 @@ public class OperacionService {
                 .costoHora(operacion.getCostoHora())
                 .activo(operacion.getActivo())
                 .fechaRegistro(operacion.getFechaRegistro())
+                .tiempoOperacion(operacion.getTiempoOperacion())
                 .fechaActualizacion(operacion.getFechaActualizacion())
                 .build();
     }

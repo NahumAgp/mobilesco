@@ -1,8 +1,10 @@
 package com.mobilesco.mobilesco_back.repositories;
 
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
@@ -14,15 +16,17 @@ public interface ProductoOperacionRepository extends JpaRepository<ProductoOpera
     
     List<ProductoOperacionModel> findByProductoIdOrderByOrdenAsc(Long productoId);
     
-    List<ProductoOperacionModel> findByOperacionId(Long operacionId);
+    Optional<ProductoOperacionModel> findByProductoIdAndOperacionId(Long productoId, Long operacionId);
     
-    @Query("SELECT po FROM ProductoOperacionModel po WHERE po.producto.id = :productoId AND po.activo = true ORDER BY po.orden ASC")
-    List<ProductoOperacionModel> findActivasByProducto(@Param("productoId") Long productoId);
+    @Modifying
+    @Query("DELETE FROM ProductoOperacionModel po WHERE po.producto.id = :productoId AND po.operacion.id = :operacionId")
+    void deleteByProductoIdAndOperacionId(@Param("productoId") Long productoId, @Param("operacionId") Long operacionId);
     
     boolean existsByProductoIdAndOperacionId(Long productoId, Long operacionId);
     
-    @Query("SELECT SUM(po.cantidad * po.tiempoMinutos) FROM ProductoOperacionModel po WHERE po.producto.id = :productoId")
+    @Query("SELECT SUM(po.tiempoTotal) FROM ProductoOperacionModel po WHERE po.producto.id = :productoId")
     Double sumarTiempoTotalByProducto(@Param("productoId") Long productoId);
     
-    void deleteByProductoId(Long productoId);
+    @Query("SELECT SUM(po.importeActividad) FROM ProductoOperacionModel po WHERE po.producto.id = :productoId")
+    Double sumarCostoTotalByProducto(@Param("productoId") Long productoId);
 }

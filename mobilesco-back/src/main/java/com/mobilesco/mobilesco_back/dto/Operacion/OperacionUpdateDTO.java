@@ -1,5 +1,6 @@
 package com.mobilesco.mobilesco_back.dto.Operacion;
 
+import jakarta.persistence.Column;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Positive;
 import jakarta.validation.constraints.Size;
@@ -18,6 +19,9 @@ public class OperacionUpdateDTO {
     
     @Size(max = 255, message = "La descripción no puede exceder 255 caracteres")
     private String descripcion;
+
+    @Column(name = "tiempo_operacion", nullable = false)
+    private Double tiempoOperacion;  // Tiempo estándar en minutos por unidad
     
     private Long centroTrabajoId;
     

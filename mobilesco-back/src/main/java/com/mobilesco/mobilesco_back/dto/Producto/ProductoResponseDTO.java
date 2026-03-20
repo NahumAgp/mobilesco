@@ -1,12 +1,14 @@
 package com.mobilesco.mobilesco_back.dto.Producto;
 
+import java.time.LocalDateTime;
+import java.util.List;
+
+import com.mobilesco.mobilesco_back.dto.ProductoOperacion.ProductoOperacionResponseDTO;
+
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-
-import java.time.LocalDateTime;
-import java.util.List;
 
 @Data
 @Builder
@@ -18,7 +20,6 @@ public class ProductoResponseDTO {
     private String nombre;
     private String descripcion;
     
-    // Catálogos
     private Long tipoProductoId;
     private String tipoProductoNombre;
     
@@ -35,9 +36,10 @@ public class ProductoResponseDTO {
     private String dimensiones;
     private Double pesoKg;
     private Boolean activo;
+    
     private LocalDateTime fechaRegistro;
     private LocalDateTime fechaActualizacion;
     
-    // Lista de insumos (BOM)
     private List<ProductoInsumoResponseDTO> insumos;
+    private List<ProductoOperacionResponseDTO> operaciones; 
 }

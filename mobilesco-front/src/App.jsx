@@ -51,6 +51,8 @@ import ProductosPage from "./pages/Productos/ProductosPage";
 import ProductoFormPage from "./pages/Productos/ProductoFormPage";
 import ProductoDetallePage from "./pages/Productos/ProductoDetallePage";
 import ProductoBOMPage from "./pages/Productos/ProductoBOMPage";
+import ProductoInsumosBOMPage from "./pages/Productos/ProductoInsumosBOMPage";
+import ProductoOperacionesBOMPage from "./pages/Productos/ProductoOperacionesBOMPage";
 
 export default function App() {
 
@@ -150,11 +152,12 @@ export default function App() {
         <Route path="/kardex/insumo/:insumoId" element={<KardexPage />} />
         
         {/* Productos */}
-        <Route path="/productos" element={<ProductosPage />} />
+       <Route path="/productos" element={<ProductosPage />} />
         <Route path="/productos/nuevo" element={<ProductoFormPage />} />
         <Route path="/productos/:id" element={<ProductoFormPage />} />
         <Route path="/productos/:id/ver" element={<ProductoDetallePage />} />
-        <Route path="/productos/:id/bom" element={<ProductoBOMPage />} />
+        <Route path="/productos/:id/bom/insumos" element={<ProductoInsumosBOMPage />} />
+        <Route path="/productos/:id/bom/operaciones" element={<ProductoOperacionesBOMPage />} />
 
       </Route>
 

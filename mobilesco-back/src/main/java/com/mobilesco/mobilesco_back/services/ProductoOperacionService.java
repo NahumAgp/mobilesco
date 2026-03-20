@@ -1,6 +1,5 @@
 package com.mobilesco.mobilesco_back.services;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -31,98 +30,48 @@ public class ProductoOperacionService {
     private final OperacionRepository operacionRepository;
 
     @Transactional
-    public ProductoOperacionResponseDTO agregarOperacionAProducto(
-            Long productoId, 
-            ProductoOperacionCreateDTO dto) {
-        
-        log.info("Agregando operación a producto - Producto ID: {}, Operación ID: {}", 
-                 productoId, dto.getOperacionId());
-        
-        ProductoModel producto = productoRepository.findById(productoId)
-                .orElseThrow(() -> new ResourceNotFoundException("Producto no encontrado"));
-        
-        OperacionModel operacion = operacionRepository.findById(dto.getOperacionId())
-                .orElseThrow(() -> new ResourceNotFoundException("Operación no encontrada"));
-        
-        // Verificar si ya existe
-        boolean existe = productoOperacionRepository.existsByProductoIdAndOperacionId(
-                productoId, dto.getOperacionId());
-        
-        if (existe) {
-            throw new ValidationException("La operación ya está agregada a este producto");
-        }
-        
-        // Crear relación
-        ProductoOperacionModel productoOperacion = ProductoOperacionModel.builder()
-                .producto(producto)
-                .operacion(operacion)
-                .cantidad(dto.getCantidad() != null ? dto.getCantidad() : 1)
-                .tiempoMinutos(dto.getTiempoMinutos())
-                .orden(dto.getOrden())
-                .observaciones(dto.getObservaciones())
-                .activo(true)
-                .build();
-        
-        ProductoOperacionModel saved = productoOperacionRepository.save(productoOperacion);
-        log.info("Operación agregada correctamente");
-        
-        return mapToResponseDTO(saved);
-    }
-
-    @Transactional
     public List<ProductoOperacionResponseDTO> agregarOperacionesMasivo(
-            Long productoId,
-            List<ProductoOperacionCreateDTO> operacionesDTO) {
+            Long productoId, 
+            List<ProductoOperacionCreateDTO> dtoList) {
         
-        log.info("Agregando {} operaciones al producto ID: {}", operacionesDTO.size(), productoId);
+        log.info("Agregando {} operaciones al producto ID: {}", dtoList.size(), productoId);
         
         ProductoModel producto = productoRepository.findById(productoId)
                 .orElseThrow(() -> new ResourceNotFoundException("Producto no encontrado"));
-        
-        List<ProductoOperacionResponseDTO> resultados = new ArrayList<>();
-        List<String> errores = new ArrayList<>();
-        
-        for (ProductoOperacionCreateDTO dto : operacionesDTO) {
-            try {
-                OperacionModel operacion = operacionRepository.findById(dto.getOperacionId())
-                        .orElseThrow(() -> new ResourceNotFoundException(
-                                "Operación no encontrada con id: " + dto.getOperacionId()));
-                
-                boolean existe = productoOperacionRepository.existsByProductoIdAndOperacionId(
-                        productoId, dto.getOperacionId());
-                
-                if (existe) {
-                    errores.add("La operación '" + operacion.getNombre() + "' ya está agregada");
-                    continue;
-                }
-                
-                ProductoOperacionModel productoOperacion = ProductoOperacionModel.builder()
-                        .producto(producto)
-                        .operacion(operacion)
-                        .cantidad(dto.getCantidad() != null ? dto.getCantidad() : 1)
-                        .tiempoMinutos(dto.getTiempoMinutos())
-                        .orden(dto.getOrden())
-                        .observaciones(dto.getObservaciones())
-                        .activo(true)
-                        .build();
-                
-                ProductoOperacionModel saved = productoOperacionRepository.save(productoOperacion);
-                resultados.add(mapToResponseDTO(saved));
-                
-            } catch (Exception e) {
-                errores.add("Error con operación ID " + dto.getOperacionId() + ": " + e.getMessage());
-            }
-        }
-        
-        if (!errores.isEmpty()) {
-            log.warn("Se completó con errores: {}", errores);
-            if (resultados.isEmpty()) {
-                throw new ValidationException("No se pudo agregar ninguna operación: " + errores);
-            }
-        }
-        
-        log.info("Se agregaron {} operaciones correctamente", resultados.size());
-        return resultados;
+
+        List<ProductoOperacionModel> operacionesAGuardar = dtoList.stream()
+                .map(dto -> {
+                    OperacionModel operacion = operacionRepository.findById(dto.getOperacionId())
+                            .orElseThrow(() -> new ResourceNotFoundException(
+                                "Operación no encontrada con ID: " + dto.getOperacionId()));
+
+                    if (productoOperacionRepository.existsByProductoIdAndOperacionId(productoId, dto.getOperacionId())) {
+                        throw new ValidationException(
+                            "La operación " + operacion.getNombre() + " ya existe en el producto");
+                    }
+
+                    ProductoOperacionModel nuevaOperacion = ProductoOperacionModel.builder()
+                            .producto(producto)
+                            .operacion(operacion)
+                            .cantidad(dto.getCantidad() != null ? dto.getCantidad() : 1)
+                            .orden(dto.getOrden() != null ? dto.getOrden() : 0)
+                            .observaciones(dto.getObservaciones())
+                            .activo(true)
+                            .build();
+                    
+                    // 🔴 ¡AQUÍ LLAMAS AL MÉTODO DE LA ENTIDAD!
+                    nuevaOperacion.calcularTotales();  // ✅ Esto funciona
+                    
+                    return nuevaOperacion;
+                })
+                .collect(Collectors.toList());
+
+        List<ProductoOperacionModel> saved = productoOperacionRepository.saveAll(operacionesAGuardar);
+        log.info("{} operaciones agregadas correctamente", saved.size());
+
+        return saved.stream()
+                .map(this::mapToResponseDTO)
+                .collect(Collectors.toList());
     }
 
     @Transactional(readOnly = true)
@@ -135,42 +84,50 @@ public class ProductoOperacionService {
 
     @Transactional
     public void eliminarOperacionDeProducto(Long productoId, Long operacionId) {
-        log.info("Eliminando operación de producto - Producto ID: {}, Operación ID: {}", 
-                 productoId, operacionId);
+        log.info("Eliminando operación ID: {} del producto ID: {}", operacionId, productoId);
         
-        List<ProductoOperacionModel> items = productoOperacionRepository.findByProductoIdOrderByOrdenAsc(productoId);
-        
-        ProductoOperacionModel item = items.stream()
-                .filter(i -> i.getOperacion().getId().equals(operacionId))
-                .findFirst()
+        ProductoOperacionModel po = productoOperacionRepository
+                .findByProductoIdAndOperacionId(productoId, operacionId)
                 .orElseThrow(() -> new ResourceNotFoundException(
-                        "La operación no está asociada a este producto"));
-        
-        productoOperacionRepository.delete(item);
+                    "Operación no encontrada en el producto"));
+
+        productoOperacionRepository.delete(po);
         log.info("Operación eliminada correctamente");
     }
 
     @Transactional
-    public void reordenarOperaciones(Long productoId, List<Long> operacionesIdsEnOrden) {
-        log.info("Reordenando operaciones del producto ID: {}", productoId);
-        
-        List<ProductoOperacionModel> operaciones = productoOperacionRepository
-                .findByProductoIdOrderByOrdenAsc(productoId);
-        
-        for (int i = 0; i < operacionesIdsEnOrden.size(); i++) {
-            Long operacionId = operacionesIdsEnOrden.get(i);
-            
-            ProductoOperacionModel op = operaciones.stream()
-                    .filter(o -> o.getOperacion().getId().equals(operacionId))
-                    .findFirst()
-                    .orElseThrow(() -> new ResourceNotFoundException(
-                            "Operación no encontrada: " + operacionId));
-            
-            op.setOrden(i + 1);
-            productoOperacionRepository.save(op);
+public void reordenarOperaciones(Long productoId, List<Long> operacionesIdsEnOrden) {
+    log.info("Reordenando operaciones del producto ID: {}", productoId);
+    
+    List<ProductoOperacionModel> operaciones = productoOperacionRepository
+            .findByProductoIdOrderByOrdenAsc(productoId);
+
+    // Crear un mapa para búsqueda rápida
+    java.util.Map<Long, ProductoOperacionModel> mapaOperaciones = operaciones.stream()
+            .collect(java.util.stream.Collectors.toMap(
+                po -> po.getOperacion().getId(), 
+                po -> po
+            ));
+
+    // Actualizar órdenes según la lista recibida
+    for (int i = 0; i < operacionesIdsEnOrden.size(); i++) {
+        Long operacionId = operacionesIdsEnOrden.get(i);
+        ProductoOperacionModel po = mapaOperaciones.get(operacionId);
+        if (po != null) {
+            po.setOrden(i + 1);
         }
-        
-        log.info("Operaciones reordenadas correctamente");
+    }
+
+    productoOperacionRepository.saveAll(operaciones);
+    log.info("Operaciones reordenadas correctamente");
+}
+
+    @Transactional(readOnly = true)
+    public Double calcularCostoTotalOperaciones(Long productoId) {
+        return productoOperacionRepository.findByProductoIdOrderByOrdenAsc(productoId)
+                .stream()
+                .mapToDouble(ProductoOperacionModel::getImporteActividad)
+                .sum();
     }
 
     private ProductoOperacionResponseDTO mapToResponseDTO(ProductoOperacionModel po) {
@@ -182,14 +139,16 @@ public class ProductoOperacionService {
                 .operacionId(po.getOperacion().getId())
                 .operacionCodigo(po.getOperacion().getCodigo())
                 .operacionNombre(po.getOperacion().getNombre())
+                .tiempoOperacion(po.getOperacion().getTiempoOperacion())
                 .costoMinutoOperacion(po.getOperacion().getCostoMinuto())
+                .centroTrabajoNombre(po.getOperacion().getCentroTrabajo() != null ? 
+                    po.getOperacion().getCentroTrabajo().getNombre() : null)
                 .cantidad(po.getCantidad())
-                .tiempoMinutos(po.getTiempoMinutos())
+                .tiempoTotal(po.getTiempoTotal())
+                .importeActividad(po.getImporteActividad())
                 .orden(po.getOrden())
                 .observaciones(po.getObservaciones())
                 .activo(po.getActivo())
-                .tiempoTotalMinutos(po.getTiempoTotalMinutos())
-                .costoTotal(po.getCostoTotalOperacion())
                 .fechaRegistro(po.getFechaRegistro())
                 .fechaActualizacion(po.getFechaActualizacion())
                 .build();

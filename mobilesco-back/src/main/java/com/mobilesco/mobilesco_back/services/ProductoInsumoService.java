@@ -29,6 +29,7 @@ public class ProductoInsumoService {
     private final ProductoInsumoRepository productoInsumoRepository;
     private final ProductoRepository productoRepository;
     private final InsumoRepository insumoRepository;
+    private final KardexService kardexService;
 
     @Transactional
     public ProductoInsumoResponseDTO agregarInsumoAProducto(
@@ -149,22 +150,74 @@ public class ProductoInsumoService {
         return resultados;
     }
 
-    // 🔴 SOLO UNA VEZ - método privado de mapeo
-    private ProductoInsumoResponseDTO mapToResponseDTO(ProductoInsumoModel pi) {
-        double cantidadConDesperdicio = pi.getCantidad() * (1 + pi.getDesperdicioPorcentaje() / 100);
+    // =====================================================
+    // 🔴 NUEVO MÉTODO: ACTUALIZAR INSUMO
+    // =====================================================
+    
+    @Transactional
+    public ProductoInsumoResponseDTO actualizarInsumo(
+            Long productoId, 
+            Long insumoId, 
+            ProductoInsumoCreateDTO dto) {
         
-        return ProductoInsumoResponseDTO.builder()
-                .id(pi.getId())
-                .productoId(pi.getProducto().getId())
-                .insumoId(pi.getInsumo().getId())
-                .insumoNombre(pi.getInsumo().getNombre())
-                .insumoUnidad(pi.getInsumo().getUnidadMedida().getSimbolo())
-                .cantidad(pi.getCantidad())
-                .desperdicioPorcentaje(pi.getDesperdicioPorcentaje())
-                .cantidadConDesperdicio(cantidadConDesperdicio)
-                .observaciones(pi.getObservaciones())
-                .fechaRegistro(pi.getFechaRegistro())
-                .fechaActualizacion(pi.getFechaActualizacion())
-                .build();
+        log.info("Actualizando insumo de producto - Producto ID: {}, Insumo ID: {}", 
+                 productoId, insumoId);
+        
+        // Buscar la relación producto-insumo
+        List<ProductoInsumoModel> items = productoInsumoRepository.findByProductoId(productoId);
+        
+        ProductoInsumoModel item = items.stream()
+                .filter(i -> i.getInsumo().getId().equals(insumoId))
+                .findFirst()
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        "El insumo no está asociado a este producto"));
+        
+        // Actualizar campos
+        if (dto.getCantidad() != null) {
+            item.setCantidad(dto.getCantidad());
+        }
+        
+        if (dto.getDesperdicioPorcentaje() != null) {
+            item.setDesperdicioPorcentaje(dto.getDesperdicioPorcentaje());
+        }
+        
+        if (dto.getObservaciones() != null) {
+            item.setObservaciones(dto.getObservaciones());
+        }
+        
+        ProductoInsumoModel updated = productoInsumoRepository.save(item);
+        log.info("Insumo actualizado correctamente");
+        
+        return mapToResponseDTO(updated);
     }
+
+    // =====================================================
+    // MÉTODO PRIVADO DE MAPEO
+    // =====================================================
+    
+    private ProductoInsumoResponseDTO mapToResponseDTO(ProductoInsumoModel pi) {
+    // 🔴 Obtener costo del Kardex
+    Double costoUnitario = kardexService.calcularCostoPromedio(pi.getInsumo().getId());
+    
+    // Calcular cantidad con desperdicio
+    Double cantidadConDesperdicio = pi.getCantidad() * (1 + (pi.getDesperdicioPorcentaje() != null ? pi.getDesperdicioPorcentaje() : 0) / 100);
+    
+    // Calcular subtotal
+    Double subtotal = cantidadConDesperdicio * costoUnitario;
+    
+    return ProductoInsumoResponseDTO.builder()
+            .id(pi.getId())
+            .insumoId(pi.getInsumo().getId())
+            .insumoNombre(pi.getInsumo().getNombre())
+            .insumoUnidad(pi.getInsumo().getUnidadMedida().getSimbolo())
+            .cantidad(pi.getCantidad())
+            .desperdicioPorcentaje(pi.getDesperdicioPorcentaje())
+            .cantidadConDesperdicio(cantidadConDesperdicio)
+            .costoUnitario(costoUnitario)              
+            .subtotal(subtotal)                          
+            .observaciones(pi.getObservaciones())
+            .fechaRegistro(pi.getFechaRegistro())
+            .fechaActualizacion(pi.getFechaActualizacion())
+            .build();
+}
 }

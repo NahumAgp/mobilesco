@@ -155,7 +155,7 @@ export default function LineaProductoForm({
                   className={inputClass("nombre")} 
                   value={formData.nombre} 
                   onChange={handleChange} 
-                  placeholder="Ej: Smartphones, Accesorios, Repuestos..."
+                  placeholder="Ej: ISO, STACK..."
                 />
                 <div className="invalid-feedback">{erroresBackend.nombre || erroresExternos.nombre}</div>
               </div>

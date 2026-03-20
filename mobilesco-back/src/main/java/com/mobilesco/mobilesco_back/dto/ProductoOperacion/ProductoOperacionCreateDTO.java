@@ -1,30 +1,26 @@
 package com.mobilesco.mobilesco_back.dto.ProductoOperacion;
 
+import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Positive;
-import jakarta.validation.constraints.PositiveOrZero;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
-import lombok.NoArgsConstructor;  // 🔴 IMPORTAR ESTO
+import lombok.NoArgsConstructor;
 
 @Data
-@NoArgsConstructor  // 🔴 AGREGAR ESTO
-@AllArgsConstructor // 🔴 OPCIONAL PERO RECOMENDADO
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class ProductoOperacionCreateDTO {
-
-    @NotNull(message = "La operación es obligatoria")
+    
+    @NotNull(message = "El ID de la operación es requerido")
     private Long operacionId;
-
-    @Positive(message = "La cantidad debe ser mayor a 0")
-    private Integer cantidad = 1;
-
-    @NotNull(message = "El tiempo es obligatorio")
-    @Positive(message = "El tiempo debe ser mayor a 0")
-    private Double tiempoMinutos;
-
-    @NotNull(message = "El orden es obligatorio")
-    @PositiveOrZero(message = "El orden debe ser 0 o mayor")
-    private Integer orden;
-
+    
+    @NotNull(message = "La cantidad es requerida")
+    @Min(value = 1, message = "La cantidad mínima es 1")
+    private Integer cantidad;
+    
     private String observaciones;
+    
+    private Integer orden;
 }

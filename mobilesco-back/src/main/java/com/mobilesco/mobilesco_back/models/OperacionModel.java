@@ -38,26 +38,30 @@ public class OperacionModel {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "codigo", nullable = false, length = 20)
-    private String codigo;           // "CORTE-01", "SOLD-01", "INYEC-01"
+    @Column(nullable = false, unique = true, length = 50)
+    private String codigo;
 
-    @Column(name = "nombre", nullable = false, length = 100)
-    private String nombre;            // "Corte de tubo", "Soldadura", "Inyección"
+    @Column(nullable = false, length = 100)
+    private String nombre;
 
-    @Column(name = "descripcion", length = 255)
+    @Column(length = 500)
     private String descripcion;
 
-    @ManyToOne
-    @JoinColumn(name = "centro_trabajo_id", foreignKey = @ForeignKey(name = "fk_operacion_centro"))
-    private CentroTrabajoModel centroTrabajo;  // Relación con Centro de Trabajo (lo crearemos después)
-
-    @Column(name = "costo_minuto", nullable = false)
-    private Double costoMinuto;        // $5.50 por minuto (incluye sueldo + prestaciones)
+    @Column(name = "tiempo_operacion", nullable = false)
+    private Double tiempoOperacion;  // Tiempo estándar en minutos por unidad
 
     @Column(name = "costo_hora")
-    private Double costoHora;          // $330 por hora (cálculo automático)
+    private Double costoHora;
 
-    @Column(name = "activo")
+    @Column(name = "costo_minuto")
+    private Double costoMinuto;
+
+    @ManyToOne
+    @JoinColumn(name = "centro_trabajo_id", nullable = false,
+                foreignKey = @ForeignKey(name = "fk_operacion_centro_trabajo"))
+    private CentroTrabajoModel centroTrabajo;
+
+    @Column(nullable = false)
     @Builder.Default
     private Boolean activo = true;
 
@@ -73,9 +77,13 @@ public class OperacionModel {
         fechaRegistro = now;
         fechaActualizacion = now;
         
-        // Calcular costo por hora automáticamente
-        if (costoMinuto != null) {
-            this.costoHora = costoMinuto * 60;
+        // Calcular costo por minuto si solo tenemos costo por hora
+        if (costoHora != null && costoMinuto == null) {
+            costoMinuto = costoHora / 60;
+        }
+        // Calcular costo por hora si solo tenemos costo por minuto
+        if (costoMinuto != null && costoHora == null) {
+            costoHora = costoMinuto * 60;
         }
     }
 
@@ -83,9 +91,12 @@ public class OperacionModel {
     protected void preUpdate() {
         fechaActualizacion = LocalDateTime.now();
         
-        // Recalcular costo por hora si cambió el costo por minuto
-        if (costoMinuto != null) {
-            this.costoHora = costoMinuto * 60;
+        // Mantener consistencia
+        if (costoHora != null && costoMinuto == null) {
+            costoMinuto = costoHora / 60;
+        }
+        if (costoMinuto != null && costoHora == null) {
+            costoHora = costoMinuto * 60;
         }
     }
 }

@@ -26,4 +26,5 @@ public class OperacionResponseDTO {
     private Boolean activo;
     private LocalDateTime fechaRegistro;
     private LocalDateTime fechaActualizacion;
+    private Double tiempoOperacion;  
 }

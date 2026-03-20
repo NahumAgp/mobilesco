@@ -13,28 +13,23 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class ProductoOperacionResponseDTO {
     private Long id;
-    
-    // Producto
     private Long productoId;
     private String productoSku;
     private String productoNombre;
     
-    // Operación
     private Long operacionId;
     private String operacionCodigo;
     private String operacionNombre;
+    private Double tiempoOperacion;
     private Double costoMinutoOperacion;
+    private String centroTrabajoNombre;
     
-    // Detalles de esta relación
-    private Integer cantidad;              // 🔴 NUEVO: 2 cortes, 4 soldaduras, etc.
-    private Double tiempoMinutos;           // Por cada vez
+    private Integer cantidad;
+    private Double tiempoTotal;
+    private Double importeActividad;
     private Integer orden;
     private String observaciones;
     private Boolean activo;
-    
-    // Campos calculados
-    private Double tiempoTotalMinutos;      // cantidad * tiempoMinutos
-    private Double costoTotal;              // tiempoTotal * costoMinutoOperacion
     
     private LocalDateTime fechaRegistro;
     private LocalDateTime fechaActualizacion;

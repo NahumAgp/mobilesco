@@ -23,11 +23,17 @@ services:
     container_name: mobilesco-backend-dev
     ports:
       - "8081:8081"
+    env_file:
+      - .env.dev   # 👈 IMPORTANTE
     environment:
       SPRING_PROFILES_ACTIVE: ${SPRING_PROFILE}
       DB_USERNAME: ${DB_USERNAME}
       DB_PASSWORD: ${DB_PASSWORD}
       SPRING_DATASOURCE_URL: ${SPRING_DATASOURCE_URL}
+      JWT_SECRET_BASE64: ${JWT_SECRET_BASE64}
+      UPLOAD_DIR: /app/uploads
+    volumes:
+      - ./uploads:/app/uploads   # 👈 CLAVE PARA IMÁGENES
     depends_on:
       db:
         condition: service_healthy
@@ -41,7 +47,7 @@ services:
     ports:
       - "80:80"
     environment:
-      - VITE_API_BASE_URL=http://backend:8081
+      - VITE_API_BASE_URL=http://localhost:8081
     depends_on:
       - backend
     networks:

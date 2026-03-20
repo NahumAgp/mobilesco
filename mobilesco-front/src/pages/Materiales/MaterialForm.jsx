@@ -148,18 +148,7 @@ export default function MaterialForm({
                 <div className="invalid-feedback">{erroresBackend.nombre || erroresExternos.nombre}</div>
               </div>
 
-              <div className="col-md-6">
-                <label className="form-label fw-semibold">Unidad de Medida</label>
-                <input 
-                  type="text" 
-                  name="unidadMedida" 
-                  className={inputClass("unidadMedida")} 
-                  value={formData.unidadMedida || ""} 
-                  onChange={handleChange} 
-                  placeholder="Ej: kg, m, m², pieza, litro..."
-                />
-                <div className="invalid-feedback">{erroresBackend.unidadMedida || erroresExternos.unidadMedida}</div>
-              </div>
+              
 
               <div className="col-md-12">
                 <label className="form-label fw-semibold">Descripción</label>

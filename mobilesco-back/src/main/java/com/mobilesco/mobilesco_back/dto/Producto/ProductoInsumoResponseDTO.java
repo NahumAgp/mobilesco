@@ -22,6 +22,8 @@ public class ProductoInsumoResponseDTO {
     private Double desperdicioPorcentaje;
     private Double cantidadConDesperdicio;  // cantidad * (1 + desperdicio/100)
     private String observaciones;
+    private Double costoUnitario;      // Del Kardex
+    private Double subtotal;           
     private LocalDateTime fechaRegistro;
     private LocalDateTime fechaActualizacion;
 }

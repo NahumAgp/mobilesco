@@ -28,6 +28,7 @@ export default function OperacionForm({
     centroTrabajoId: "",
     costoMinuto: "",
     costoHora: "",
+    tiempoOperacion: "",
     activo: true
   });
 
@@ -59,6 +60,7 @@ export default function OperacionForm({
           centroTrabajoId: operacion.centroTrabajoId || "",
           costoMinuto: operacion.costoMinuto || "",
           costoHora: operacion.costoHora || "",
+          tiempoOperacion: data.tiempoOperacion || "", 
           activo: operacion.activo ?? true
         });
         return;
@@ -74,6 +76,7 @@ export default function OperacionForm({
             centroTrabajoId: data.centroTrabajoId || "",
             costoMinuto: data.costoMinuto || "",
             costoHora: data.costoHora || "",
+            tiempoOperacion: data.tiempoOperacion || "",
             activo: data.activo ?? true
           });
         } catch (e) {
@@ -109,7 +112,8 @@ export default function OperacionForm({
     const dataToSend = {
       ...formData,
       costoMinuto: formData.costoMinuto === "" ? null : formData.costoMinuto,
-      costoHora: formData.costoHora === "" ? null : formData.costoHora
+      costoHora: formData.costoHora === "" ? null : formData.costoHora,
+      tiempoMinutos: formData.tiempoOperacion === "" ? null : formData.tiempoOperacion 
     };
 
     try {
@@ -247,22 +251,32 @@ export default function OperacionForm({
                 </div>
               </div>
 
-              <div className="col-md-3">
-                <label className="form-label fw-semibold">Costo por Hora</label>
-                <div className="input-group">
-                  <span className="input-group-text">$</span>
-                  <input 
-                    type="number" 
-                    step="0.01" 
-                    min="0"
-                    name="costoHora" 
-                    className={inputClass("costoHora")} 
-                    value={formData.costoHora} 
-                    onChange={handleChange} 
-                    placeholder="0.00"
-                  />
-                </div>
-              </div>
+             <div className="col-md-3">
+  <label className="form-label fw-semibold">Costo por Hora</label>
+  <div className="input-group">
+    <span className="input-group-text">$</span>
+    <input 
+      type="number" 
+      name="costoHora" 
+      className="form-control bg-light"
+      value={formData.costoHora} 
+      readOnly
+      tabIndex={-1}
+    />
+  </div>
+  <small className="text-muted">Calculado automáticamente</small>
+</div>
+             
+             {/* ✅ NUEVO CAMPO */}
+          <div className="col-md-2">
+            <label>Tiempo (min)</label>
+            <input 
+              type="number"
+              name="tiempoOperacion"
+              value={formData.tiempoOperacion}
+              onChange={handleChange}
+            />
+          </div>
 
               <div className="col-md-12">
                 <label className="form-label fw-semibold">Descripción</label>

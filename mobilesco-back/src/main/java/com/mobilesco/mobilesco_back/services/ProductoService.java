@@ -10,6 +10,7 @@ import com.mobilesco.mobilesco_back.dto.Producto.ProductoCreateDTO;
 import com.mobilesco.mobilesco_back.dto.Producto.ProductoInsumoResponseDTO;
 import com.mobilesco.mobilesco_back.dto.Producto.ProductoResponseDTO;
 import com.mobilesco.mobilesco_back.dto.Producto.ProductoUpdateDTO;
+import com.mobilesco.mobilesco_back.dto.ProductoOperacion.ProductoOperacionResponseDTO;
 import com.mobilesco.mobilesco_back.exceptions.ResourceNotFoundException;
 import com.mobilesco.mobilesco_back.exceptions.ValidationException;
 import com.mobilesco.mobilesco_back.models.CategoriaModel;
@@ -22,6 +23,7 @@ import com.mobilesco.mobilesco_back.repositories.CategoriaRepository;
 import com.mobilesco.mobilesco_back.repositories.LineaProductoRepository;
 import com.mobilesco.mobilesco_back.repositories.MaterialRepository;
 import com.mobilesco.mobilesco_back.repositories.ProductoInsumoRepository;
+import com.mobilesco.mobilesco_back.repositories.ProductoOperacionRepository;
 import com.mobilesco.mobilesco_back.repositories.ProductoRepository;
 import com.mobilesco.mobilesco_back.repositories.TipoProductoRepository;
 
@@ -39,6 +41,7 @@ public class ProductoService {
     private final CategoriaRepository categoriaRepository;
     private final MaterialRepository materialRepository;
     private final ProductoInsumoRepository productoInsumoRepository;
+    private final ProductoOperacionRepository productoOperacionRepository;
     private final KardexService kardexService;
     @Transactional
     public ProductoResponseDTO crear(ProductoCreateDTO dto) {
@@ -239,42 +242,65 @@ public class ProductoService {
     }
 
     private ProductoResponseDTO mapToResponseDTO(ProductoModel producto) {
-        List<ProductoInsumoResponseDTO> insumos = productoInsumoRepository.findByProductoId(producto.getId())
-                .stream()
-                .map(pi -> ProductoInsumoResponseDTO.builder()
-                        .id(pi.getId())
-                        .insumoId(pi.getInsumo().getId())
-                        .insumoNombre(pi.getInsumo().getNombre())
-                        .insumoUnidad(pi.getInsumo().getUnidadMedida().getSimbolo())
-                        .cantidad(pi.getCantidad())
-                        .desperdicioPorcentaje(pi.getDesperdicioPorcentaje())
-                        .cantidadConDesperdicio(pi.getCantidad() * (1 + pi.getDesperdicioPorcentaje() / 100))
-                        .observaciones(pi.getObservaciones())
-                        .build())
-                .collect(Collectors.toList());
+    // Obtener insumos (código existente)
+    List<ProductoInsumoResponseDTO> insumos = productoInsumoRepository.findByProductoId(producto.getId())
+            .stream()
+            .map(pi -> ProductoInsumoResponseDTO.builder()
+                    .id(pi.getId())
+                    .insumoId(pi.getInsumo().getId())
+                    .insumoNombre(pi.getInsumo().getNombre())
+                    .insumoUnidad(pi.getInsumo().getUnidadMedida().getSimbolo())
+                    .cantidad(pi.getCantidad())
+                    .desperdicioPorcentaje(pi.getDesperdicioPorcentaje())
+                    .cantidadConDesperdicio(pi.getCantidad() * (1 + pi.getDesperdicioPorcentaje() / 100))
+                    .observaciones(pi.getObservaciones())
+                    .build())
+            .collect(Collectors.toList());
 
-        return ProductoResponseDTO.builder()
-                .id(producto.getId())
-                .sku(producto.getSku())
-                .nombre(producto.getNombre())
-                .descripcion(producto.getDescripcion())
-                .tipoProductoId(producto.getTipoProducto().getId())
-                .tipoProductoNombre(producto.getTipoProducto().getNombre())
-                .lineaId(producto.getLinea() != null ? producto.getLinea().getId() : null)
-                .lineaNombre(producto.getLinea() != null ? producto.getLinea().getNombre() : null)
-                .categoriaId(producto.getCategoria() != null ? producto.getCategoria().getId() : null)
-                .categoriaNombre(producto.getCategoria() != null ? producto.getCategoria().getNombre() : null)
-                .materialId(producto.getMaterial() != null ? producto.getMaterial().getId() : null)
-                .materialNombre(producto.getMaterial() != null ? producto.getMaterial().getNombre() : null)
-                .caracteristicas(producto.getCaracteristicas())
-                .dimensiones(producto.getDimensiones())
-                .pesoKg(producto.getPesoKg())
-                .activo(producto.getActivo())
-                .fechaRegistro(producto.getFechaRegistro())
-                .fechaActualizacion(producto.getFechaActualizacion())
-                .insumos(insumos)
-                .build();
-    }
+    // 🔴 NUEVO: Obtener operaciones
+    List<ProductoOperacionResponseDTO> operaciones = productoOperacionRepository
+            .findByProductoIdOrderByOrdenAsc(producto.getId())
+            .stream()
+            .map(po -> ProductoOperacionResponseDTO.builder()
+                    .id(po.getId())
+                    .operacionId(po.getOperacion().getId())
+                    .operacionCodigo(po.getOperacion().getCodigo())
+                    .operacionNombre(po.getOperacion().getNombre())
+                    .tiempoOperacion(po.getOperacion().getTiempoOperacion())
+                    .costoMinutoOperacion(po.getOperacion().getCostoMinuto())
+                    .centroTrabajoNombre(po.getOperacion().getCentroTrabajo() != null ? 
+                        po.getOperacion().getCentroTrabajo().getNombre() : null)
+                    .cantidad(po.getCantidad())
+                    .tiempoTotal(po.getTiempoTotal())
+                    .importeActividad(po.getImporteActividad())
+                    .orden(po.getOrden())
+                    .observaciones(po.getObservaciones())
+                    .build())
+            .collect(Collectors.toList());
+
+    return ProductoResponseDTO.builder()
+            .id(producto.getId())
+            .sku(producto.getSku())
+            .nombre(producto.getNombre())
+            .descripcion(producto.getDescripcion())
+            .tipoProductoId(producto.getTipoProducto().getId())
+            .tipoProductoNombre(producto.getTipoProducto().getNombre())
+            .lineaId(producto.getLinea() != null ? producto.getLinea().getId() : null)
+            .lineaNombre(producto.getLinea() != null ? producto.getLinea().getNombre() : null)
+            .categoriaId(producto.getCategoria() != null ? producto.getCategoria().getId() : null)
+            .categoriaNombre(producto.getCategoria() != null ? producto.getCategoria().getNombre() : null)
+            .materialId(producto.getMaterial() != null ? producto.getMaterial().getId() : null)
+            .materialNombre(producto.getMaterial() != null ? producto.getMaterial().getNombre() : null)
+            .caracteristicas(producto.getCaracteristicas())
+            .dimensiones(producto.getDimensiones())
+            .pesoKg(producto.getPesoKg())
+            .activo(producto.getActivo())
+            .fechaRegistro(producto.getFechaRegistro())
+            .fechaActualizacion(producto.getFechaActualizacion())
+            .insumos(insumos)
+            .operaciones(operaciones)  // 🔴 NUEVO
+            .build();
+}
 
      
 }
